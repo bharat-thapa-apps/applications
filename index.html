@@ -8,16 +8,21 @@
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             text-align: center;
-            margin: 50px;
             background-color: #f7f7f7;
             color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
         }
         .container {
             background: white;
             padding: 30px;
             border-radius: 12px;
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
-            display: inline-block;
             width: 90%;
             max-width: 400px;
         }
@@ -34,13 +39,11 @@
             border: 1px solid #ddd;
             border-radius: 6px;
             box-sizing: border-box;
-            color: #777; /* Gray text */
-            background: white;
-            outline: none;
+            color: gray; /* Gray input text */
+            outline: none; /* Removes default highlight */
         }
         input:focus {
-            border-color: #007BFF;
-            box-shadow: 0 0 6px rgba(0, 123, 255, 0.3);
+            border-color: #007BFF; /* Highlight color when typing */
         }
         .result-box {
             margin-top: 20px;
