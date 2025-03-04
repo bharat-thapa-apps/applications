@@ -5,18 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Percentage Deduction Calculator</title>
     <style>
-        body {
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        html, body {
+            height: 100%;
+            width: 100%;
+            display: grid;
+            place-items: center;
+            background-color: #f7f7f7;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             text-align: center;
-            background-color: #f7f7f7;
-            color: #333;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            margin: 0;
-            padding: 20px;
+            overflow-x: hidden;
         }
         .container {
             background: white;
@@ -28,22 +30,22 @@
         }
         h2 {
             color: #007BFF;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
         }
         input {
             font-size: 16px;
             padding: 12px;
             margin: 15px 0;
-            width: calc(100% - 26px);
+            width: 100%;
             text-align: center;
             border: 1px solid #ddd;
             border-radius: 6px;
-            box-sizing: border-box;
-            color: gray; /* Gray input text */
-            outline: none; /* Removes default highlight */
+            color: gray;
+            outline: none;
+            background: white;
         }
         input:focus {
-            border-color: #007BFF; /* Highlight color when typing */
+            border-color: #007BFF;
         }
         .result-box {
             margin-top: 20px;
@@ -53,9 +55,7 @@
             background: #e8f5e9;
             color: #2e7d32;
             text-align: left;
-            width: calc(100% - 26px);
-            box-sizing: border-box;
-            display: inline-block;
+            width: 100%;
         }
         .deduction-item {
             margin-bottom: 8px;
@@ -73,13 +73,19 @@
 <body>
     <div class="container">
         <h2>Percentage Deduction Calculator</h2>
-        <input type="number" id="inputX" placeholder="Enter Initial Amount" oninput="calculateDeduction()" autofocus>
+        <input type="number" id="inputX" placeholder="Enter Initial Amount" oninput="saveAndCalculate()" autofocus>
         <div id="result" class="result-box"></div>
     </div>
 
     <script>
-        function calculateDeduction() {
+        function saveAndCalculate() {
             let x = parseFloat(document.getElementById('inputX').value);
+            
+            // Save input value to localStorage
+            if (!isNaN(x) && x > 0) {
+                localStorage.setItem('lastInput', x);
+            }
+
             if (isNaN(x) || x <= 0) {
                 document.getElementById('result').innerHTML = "";
                 return;
@@ -100,6 +106,15 @@
                 <div class="deduction-item final-amount">Final Amount: <strong>₹${finalAmount}</strong></div>
             `;
         }
+
+        // Load last input on page load
+        window.onload = function () {
+            let savedInput = localStorage.getItem('lastInput');
+            if (savedInput) {
+                document.getElementById('inputX').value = savedInput;
+                saveAndCalculate(); // Calculate automatically
+            }
+        };
     </script>
 </body>
 </html>
