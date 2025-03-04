@@ -5,20 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Percentage Deduction Calculator</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        html, body {
-            height: 100%;
-            width: 100%;
-            display: grid;
-            place-items: center;
-            background-color: #f7f7f7;
+        body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             text-align: center;
-            overflow-x: hidden;
+            margin: 0;
+            padding: 0;
+            background-color: #f7f7f7;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
         }
         .container {
             background: white;
@@ -27,6 +24,7 @@
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
             width: 90%;
             max-width: 400px;
+            text-align: center;
         }
         h2 {
             color: #007BFF;
@@ -35,17 +33,15 @@
         input {
             font-size: 16px;
             padding: 12px;
-            margin: 15px 0;
-            width: 100%;
+            margin: 10px 0;
+            width: calc(100% - 26px);
             text-align: center;
             border: 1px solid #ddd;
             border-radius: 6px;
+            box-sizing: border-box;
+            background: white;
             color: gray;
             outline: none;
-            background: white;
-        }
-        input:focus {
-            border-color: #007BFF;
         }
         .result-box {
             margin-top: 20px;
@@ -55,7 +51,9 @@
             background: #e8f5e9;
             color: #2e7d32;
             text-align: left;
-            width: 100%;
+            width: calc(100% - 26px);
+            box-sizing: border-box;
+            display: inline-block;
         }
         .deduction-item {
             margin-bottom: 8px;
@@ -73,23 +71,23 @@
 <body>
     <div class="container">
         <h2>Percentage Deduction Calculator</h2>
-        <input type="number" id="inputX" placeholder="Enter Initial Amount" oninput="saveAndCalculate()" autofocus>
+        <input type="number" id="inputX" placeholder="Enter Initial Amount" oninput="calculateDeduction()" autofocus>
         <div id="result" class="result-box"></div>
     </div>
 
     <script>
-        function saveAndCalculate() {
-            let x = parseFloat(document.getElementById('inputX').value);
-            
-            // Save input value to localStorage
-            if (!isNaN(x) && x > 0) {
-                localStorage.setItem('lastInput', x);
-            }
+        function calculateDeduction() {
+            let inputField = document.getElementById('inputX');
+            let resultBox = document.getElementById('result');
+            let x = parseFloat(inputField.value);
 
             if (isNaN(x) || x <= 0) {
-                document.getElementById('result').innerHTML = "";
+                resultBox.innerHTML = "";
+                localStorage.removeItem('lastInput');
                 return;
             }
+
+            localStorage.setItem('lastInput', x);
 
             let deduction5 = Math.round(x * 0.05);
             let amountAfter5 = Math.round(x - deduction5);
@@ -97,7 +95,7 @@
             let finalAmount = Math.round(amountAfter5 - deduction20);
             let totalDeducted = Math.round(deduction5 + deduction20);
 
-            document.getElementById('result').innerHTML = `
+            resultBox.innerHTML = `
                 <div class="deduction-item">Initial Amount: <strong>₹${Math.round(x)}</strong></div>
                 <div class="deduction-item">5% Deduction: <strong>₹${deduction5}</strong></div>
                 <div class="deduction-item">Amount After 5%: <strong>₹${amountAfter5}</strong></div>
@@ -107,12 +105,11 @@
             `;
         }
 
-        // Load last input on page load
         window.onload = function () {
             let savedInput = localStorage.getItem('lastInput');
             if (savedInput) {
                 document.getElementById('inputX').value = savedInput;
-                saveAndCalculate(); // Calculate automatically
+                calculateDeduction();
             }
         };
     </script>
