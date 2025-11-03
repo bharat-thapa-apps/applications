@@ -21,7 +21,7 @@
     <!-- Calculator Main Container (Card) -->
     <div id="calculator-app" class="bg-white rounded-3xl shadow-2xl shadow-blue-200 p-8 sm:p-10 w-full max-w-lg mx-auto transition-all duration-500">
 
-        <div class="flex items-center justify-between mb-8">
+        <div class="flex items-center justify-start mb-8">
              <a href="index.html" class="flex items-center text-blue-600 hover:text-blue-800 transition duration-200">
                 <!-- Back Arrow Icon (Lucide-react equivalent using inline SVG for single file) -->
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1">
@@ -29,7 +29,6 @@
                 </svg>
                 <span class="text-sm font-medium">Back to Hub</span>
             </a>
-            <span id="auth-status" class="text-xs text-gray-500">Initializing...</span>
         </div>
 
         <!-- Header -->
@@ -37,7 +36,7 @@
             Discount and Deduction Tool
         </h1>
         <p class="text-gray-500 mb-8">
-            Enter the initial amount to see sequential deductions (5% then 20%).
+            Enter the initial amount to see sequential deductions (5% then 20%). Data saved locally on your device.
         </p>
 
         <!-- Input Section -->
@@ -53,36 +52,19 @@
 
     </div>
 
-    <!-- Firebase and Application Logic -->
+    <!-- Application Logic using LocalStorage -->
     <script type="module">
-        // Mandatory Firebase Imports
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        // --- Global Firebase Configuration Variables (MANDATORY) ---
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
-        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
-
-        let db, auth, userId = null;
+        // --- Core Application Variables ---
         const inputField = document.getElementById('inputX');
         const resultBox = document.getElementById('result');
-        const authStatusSpan = document.getElementById('auth-status');
 
         // Helper for currency formatting
         const formatter = new Intl.NumberFormat('en-IN', {
             style: 'currency',
-            currency: 'INR', // Using Indian Rupee symbol as in original code
+            currency: 'INR',
             minimumFractionDigits: 0,
             maximumFractionDigits: 0,
         });
-
-        // --- Firestore Path Helper ---
-        const getDocRef = (uid) => {
-            return doc(db, `artifacts/${appId}/users/${uid}/calculator_data/last_input`);
-        };
 
         // --- Core Calculation Logic ---
         function calculateDeduction(x) {
@@ -91,7 +73,7 @@
                 return;
             }
 
-            // Using Math.round() to keep the calculation integers as in the original code
+            // Calculations: 5% deduction, then 20% from the reduced amount
             const initialAmount = Math.round(x);
             const deduction5 = Math.round(initialAmount * 0.05);
             const amountAfter5 = Math.round(initialAmount - deduction5);
@@ -134,16 +116,12 @@
             `;
         }
 
-        // --- Firestore Write Operation ---
-        async function saveInput(value) {
-            if (!db || !userId) return console.error("Database or User ID not ready for saving.");
-            try {
-                await setDoc(getDocRef(userId), {
-                    lastInput: value,
-                    timestamp: new Date()
-                });
-            } catch (error) {
-                console.error("Error saving input to Firestore:", error);
+        // --- LocalStorage Write Operation ---
+        function saveInput(value) {
+            if (value > 0) {
+                localStorage.setItem('lastInput', value.toString());
+            } else {
+                localStorage.removeItem('lastInput');
             }
         }
 
@@ -154,81 +132,27 @@
             calculateDeduction(value);
 
             clearTimeout(debounceTimer);
-            if (value > 0) {
-                 debounceTimer = setTimeout(() => {
-                    saveInput(value);
-                }, 800); // Debounce save operation
-            } else {
-                 saveInput(0); // Save 0 or nullified data
-            }
+            // Debounce save operation to prevent excessive calls, though less critical for local storage
+            debounceTimer = setTimeout(() => {
+                saveInput(value);
+            }, 300);
         });
 
 
-        // --- Firebase Initialization ---
-        window.onload = async function () {
-            if (!firebaseConfig) {
-                authStatusSpan.textContent = "Error: Firebase config missing.";
-                console.error("Firebase config is missing.");
-                return;
-            }
+        // --- Initialization: Load from LocalStorage on load ---
+        window.onload = function () {
+            const savedInput = localStorage.getItem('lastInput');
 
-            try {
-                setLogLevel('Debug');
-                const app = initializeApp(firebaseConfig);
-                db = getFirestore(app);
-                auth = getAuth(app);
-
-                // Authenticate user
-                if (initialAuthToken) {
-                    await signInWithCustomToken(auth, initialAuthToken);
-                } else {
-                    await signInAnonymously(auth);
+            if (savedInput) {
+                const value = parseFloat(savedInput);
+                if (value > 0) {
+                    inputField.value = value;
+                    calculateDeduction(value);
                 }
-
-                // Wait for auth state to be resolved
-                onAuthStateChanged(auth, (user) => {
-                    if (user) {
-                        userId = user.uid;
-                        authStatusSpan.textContent = `User ID: ${userId.substring(0, 4)}...`;
-                        initRealtimeListener(userId);
-                    } else {
-                        // This case should ideally not happen if signInAnonymously is successful,
-                        // but included for robustness.
-                        authStatusSpan.textContent = "Signed out/Anonymous failed.";
-                        console.log("No user signed in.");
-                    }
-                });
-
-            } catch (error) {
-                authStatusSpan.textContent = "Authentication Error";
-                console.error("Firebase Initialization Error:", error);
             }
+            // Ensure the input field is focused for immediate typing
+            inputField.focus();
         };
-
-        // --- Real-time Data Listener ---
-        function initRealtimeListener(uid) {
-            const dataRef = getDocRef(uid);
-            onSnapshot(dataRef, (docSnap) => {
-                if (docSnap.exists()) {
-                    const data = docSnap.data();
-                    const savedInput = data.lastInput;
-                    if (savedInput && savedInput > 0) {
-                        // Update UI only if the current input field is not the same value
-                        if (parseFloat(inputField.value) !== savedInput) {
-                             inputField.value = savedInput;
-                        }
-                        calculateDeduction(savedInput);
-                    } else if (parseFloat(inputField.value) === 0) {
-                        // Clear if saved value is 0 and input is also 0
-                        inputField.value = '';
-                        calculateDeduction(0);
-                    }
-                }
-            }, (error) => {
-                console.error("Error setting up real-time listener:", error);
-                authStatusSpan.textContent = "Data Error";
-            });
-        }
     </script>
 </body>
 </html>
