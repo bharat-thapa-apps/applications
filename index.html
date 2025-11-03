@@ -3,46 +3,135 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Apps</title>
+    <title>My Dashboard</title>
     <!-- Use the Inter font from Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     <!-- Load Tailwind CSS from CDN for styling -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Use Tailwind's JIT mode for faster styling -->
     <style>
         body {
             font-family: 'Inter', sans-serif;
+            /* Subtle radial gradient background */
+            background: radial-gradient(circle at top left, #e0f2fe 0%, #f9fafb 50%, #eef2ff 100%);
         }
     </style>
 </head>
-<body class="bg-gray-50 flex items-center justify-center min-h-screen p-4">
+<body class="flex items-center justify-center min-h-screen p-4">
 
-    <!-- Main container for the landing page content -->
-    <div class="bg-white rounded-xl shadow-2xl p-8 sm:p-12 w-full max-w-2xl text-center">
+    <!-- Main container for the app dashboard -->
+    <div class="bg-white rounded-[2rem] shadow-2xl shadow-gray-300 p-8 sm:p-12 w-full max-w-5xl">
 
         <!-- Header section with a title and description -->
-        <header class="mb-10">
-            <h1 class="text-4xl font-extrabold text-gray-900 mb-4 tracking-tight">
-                Apps
+        <header class="mb-12 text-center">
+            <h1 class="text-5xl sm:text-6xl font-extrabold text-gray-900 mb-4 tracking-tight">
+                Your Apps Hub
             </h1>
+            <p class="text-xl text-gray-500 max-w-lg mx-auto">
+                Select a tool to get started. All your utilities in one place.
+            </p>
         </header>
 
-        <!-- Container for the app links, styled as cards -->
-        <div class="flex flex-col sm:flex-row items-center justify-center gap-6">
+        <!-- Container for the app cards, using a responsive grid layout -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
 
-            <!-- Link for the Percentage Deduction Calculator -->
-            <a href="pdc.html" class="flex-1 w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-5 px-8 rounded-lg transition-all duration-300 transform hover:-translate-y-1 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-                Percentage Deduction Calculator
+            <!-- Card for Percentage Deduction Calculator -->
+            <a href="pdc.html" class="app-card group">
+                <div class="p-6">
+                    <div class="flex items-center space-x-4 mb-4">
+                        <!-- Icon Placeholder (Emoji for simplicity) -->
+                        <div class="bg-blue-100 text-blue-600 p-4 rounded-xl text-3xl transition-colors duration-300 group-hover:bg-blue-600 group-hover:text-white">
+                            %
+                        </div>
+                        <h2 class="text-2xl font-bold text-gray-900">
+                            Percentage Deduction Calculator
+                        </h2>
+                    </div>
+                    <p class="text-gray-500 mb-4">
+                        Quickly calculate discounts, sales tax, or complex percentage decreases with ease.
+                    </p>
+                    <span class="text-blue-500 font-semibold group-hover:text-white transition-colors duration-300">
+                        Launch App &rarr;
+                    </span>
+                </div>
             </a>
 
-            <!-- Link for the Monthly Log Generator -->
-            <a href="mlg.html" class="flex-1 w-full bg-green-500 hover:bg-green-600 text-white font-bold py-5 px-8 rounded-lg transition-all duration-300 transform hover:-translate-y-1 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
-                Monthly Log Generator
+            <!-- Card for Monthly Log Generator -->
+            <a href="mlg.html" class="app-card group">
+                <div class="p-6">
+                    <div class="flex items-center space-x-4 mb-4">
+                        <!-- Icon Placeholder (Emoji for simplicity) -->
+                        <div class="bg-green-100 text-green-600 p-4 rounded-xl text-3xl transition-colors duration-300 group-hover:bg-green-600 group-hover:text-white">
+                            &#128197; <!-- Calendar Emoji -->
+                        </div>
+                        <h2 class="text-2xl font-bold text-gray-900">
+                            Monthly Log Generator
+                        </h2>
+                    </div>
+                    <p class="text-gray-500 mb-4">
+                        Generate formatted summaries and chronological time logs for reporting and review.
+                    </p>
+                    <span class="text-green-500 font-semibold group-hover:text-white transition-colors duration-300">
+                        Launch App &rarr;
+                    </span>
+                </div>
+            </a>
+
+            <!-- Placeholder Card 3 (Optional) -->
+            <a href="#" class="app-card group opacity-50 cursor-not-allowed">
+                <div class="p-6">
+                    <div class="flex items-center space-x-4 mb-4">
+                        <!-- Icon Placeholder -->
+                        <div class="bg-gray-100 text-gray-400 p-4 rounded-xl text-3xl">
+                            &#9999; <!-- Pencil Emoji -->
+                        </div>
+                        <h2 class="text-2xl font-bold text-gray-400">
+                            New App Coming Soon
+                        </h2>
+                    </div>
+                    <p class="text-gray-400 mb-4">
+                        Stay tuned for more utility tools and enhanced features.
+                    </p>
+                    <span class="text-gray-400 font-semibold">
+                        In Development
+                    </span>
+                </div>
             </a>
 
         </div>
-
     </div>
 
+    <script>
+        // Custom CSS for card styling that uses group-hover states
+        document.addEventListener('DOMContentLoaded', () => {
+            const style = document.createElement('style');
+            style.textContent = `
+                .app-card {
+                    display: block;
+                    background-color: #ffffff;
+                    border: 1px solid #e5e7eb;
+                    border-radius: 1.5rem; /* rounded-3xl equivalent */
+                    transition: all 0.3s ease;
+                    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+                }
+
+                /* Active Card Hover State */
+                .app-card:not(.opacity-50):hover {
+                    transform: translateY(-5px);
+                    box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.3), 0 4px 6px -4px rgba(37, 99, 235, 0.3);
+                    background-color: theme('colors.blue.600');
+                    color: white;
+                }
+
+                /* Nested element color changes on hover */
+                .app-card:not(.opacity-50):hover h2 {
+                    color: white;
+                }
+                .app-card:not(.opacity-50):hover p {
+                    color: theme('colors.blue.100');
+                }
+            `;
+            document.head.appendChild(style);
+        });
+    </script>
 </body>
 </html>
