@@ -4,126 +4,231 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Percentage Deduction Calculator</title>
+    <!-- Use the Inter font from Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <!-- Load Tailwind CSS from CDN for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            text-align: center;
-            margin: 0;
-            padding: 0;
-            background-color: #f7f7f7;
-            color: #333;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-        .container {
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
-            width: 90%;
-            max-width: 400px;
-            text-align: center;
-        }
-        h2 {
-            color: #007BFF;
-            margin-bottom: 20px;
-        }
-        input {
-            font-size: 16px;
-            padding: 12px;
-            margin: 10px 0;
-            width: calc(100% - 26px);
-            text-align: center;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            box-sizing: border-box;
-            background: white;
-            color: gray;
-            outline: none;
-        }
-        .result-box {
-            margin-top: 20px;
-            font-size: 16px;
-            padding: 20px;
-            border-radius: 8px;
-            background: #e8f5e9;
-            color: #2e7d32;
-            text-align: left;
-            width: calc(100% - 26px);
-            box-sizing: border-box;
-            display: inline-block;
-        }
-        .deduction-item {
-            margin-bottom: 8px;
-        }
-        .total-deducted {
-            color: red;
-            font-weight: bold;
-        }
-        .final-amount {
-            font-weight: bold;
-            font-size: 18px;
-        }
-        #return-button {
-          margin-top: 8px;
-          border-radius: 4px;
-          border: 1px solid green;
-          background-color: #E8F5E9;
-          color: rgb(2, 105, 2);
-          height: 36px;
-          cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            /* Subtle radial gradient background matching index.html */
+            background: radial-gradient(circle at top left, #e0f2fe 0%, #f9fafb 50%, #eef2ff 100%);
         }
     </style>
 </head>
-<body>
-    <div class="container">
-        <h2>Percentage Deduction Calculator</h2>
-        <input type="number" id="inputX" placeholder="Enter Initial Amount" oninput="calculateDeduction()" autofocus>
-        <div id="result" class="result-box"></div>
-        <a href="index.html"><button id="return-button">Return</button></a>
+<body class="flex items-center justify-center min-h-screen p-4">
+
+    <!-- Calculator Main Container (Card) -->
+    <div id="calculator-app" class="bg-white rounded-3xl shadow-2xl shadow-blue-200 p-8 sm:p-10 w-full max-w-lg mx-auto transition-all duration-500">
+
+        <div class="flex items-center justify-between mb-8">
+             <a href="index.html" class="flex items-center text-blue-600 hover:text-blue-800 transition duration-200">
+                <!-- Back Arrow Icon (Lucide-react equivalent using inline SVG for single file) -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1">
+                    <path d="m15 18-6-6 6-6"/>
+                </svg>
+                <span class="text-sm font-medium">Back to Hub</span>
+            </a>
+            <span id="auth-status" class="text-xs text-gray-500">Initializing...</span>
+        </div>
+
+        <!-- Header -->
+        <h1 class="text-3xl font-bold text-gray-900 mb-2 tracking-tight">
+            Discount and Deduction Tool
+        </h1>
+        <p class="text-gray-500 mb-8">
+            Enter the initial amount to see sequential deductions (5% then 20%).
+        </p>
+
+        <!-- Input Section -->
+        <div class="mb-6">
+            <label for="inputX" class="block text-left text-sm font-medium text-gray-700 mb-2">Initial Amount (₹)</label>
+            <input type="number" id="inputX" placeholder="e.g., 1000" class="w-full p-4 border border-gray-300 rounded-xl text-xl text-center focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition duration-150" autofocus>
+        </div>
+
+        <!-- Result Section -->
+        <div id="result" class="min-h-[160px] p-6 bg-blue-50 rounded-xl border border-blue-200 transition-all duration-300">
+            <p class="text-gray-400 text-center text-lg mt-8">Results will appear here.</p>
+        </div>
+
     </div>
 
-    <script>
-        function calculateDeduction() {
-            let inputField = document.getElementById('inputX');
-            let resultBox = document.getElementById('result');
-            let x = parseFloat(inputField.value);
+    <!-- Firebase and Application Logic -->
+    <script type="module">
+        // Mandatory Firebase Imports
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
+        // --- Global Firebase Configuration Variables (MANDATORY) ---
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        let db, auth, userId = null;
+        const inputField = document.getElementById('inputX');
+        const resultBox = document.getElementById('result');
+        const authStatusSpan = document.getElementById('auth-status');
+
+        // Helper for currency formatting
+        const formatter = new Intl.NumberFormat('en-IN', {
+            style: 'currency',
+            currency: 'INR', // Using Indian Rupee symbol as in original code
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0,
+        });
+
+        // --- Firestore Path Helper ---
+        const getDocRef = (uid) => {
+            return doc(db, `artifacts/${appId}/users/${uid}/calculator_data/last_input`);
+        };
+
+        // --- Core Calculation Logic ---
+        function calculateDeduction(x) {
             if (isNaN(x) || x <= 0) {
-                resultBox.innerHTML = "";
-                localStorage.removeItem('lastInput');
+                resultBox.innerHTML = '<p class="text-gray-400 text-center text-lg mt-8">Results will appear here.</p>';
                 return;
             }
 
-            localStorage.setItem('lastInput', x);
+            // Using Math.round() to keep the calculation integers as in the original code
+            const initialAmount = Math.round(x);
+            const deduction5 = Math.round(initialAmount * 0.05);
+            const amountAfter5 = Math.round(initialAmount - deduction5);
+            const deduction20 = Math.round(amountAfter5 * 0.20);
+            const finalAmount = Math.round(amountAfter5 - deduction20);
+            const totalDeducted = Math.round(deduction5 + deduction20);
 
-            let deduction5 = Math.round(x * 0.05);
-            let amountAfter5 = Math.round(x - deduction5);
-            let deduction20 = Math.round(amountAfter5 * 0.20);
-            let finalAmount = Math.round(amountAfter5 - deduction20);
-            let totalDeducted = Math.round(deduction5 + deduction20);
-
+            // Using Tailwind classes for result display
             resultBox.innerHTML = `
-                <div class="deduction-item">Initial Amount: <strong>₹${Math.round(x)}</strong></div>
-                <div class="deduction-item">5% Deduction: <strong>₹${deduction5}</strong></div>
-                <div class="deduction-item">Amount After 5%: <strong>₹${amountAfter5}</strong></div>
-                <div class="deduction-item">20% Deduction: <strong>₹${deduction20}</strong></div>
-                <div class="deduction-item">Total Deducted: <span class="total-deducted">₹${totalDeducted}</span></div>
-                <div class="deduction-item final-amount">Final Amount: <strong>₹${finalAmount}</strong></div>
+                <div class="space-y-3">
+                    <div class="flex justify-between border-b border-blue-300 pb-2">
+                        <span class="text-lg text-gray-700 font-semibold">Initial Amount:</span>
+                        <span class="text-lg font-bold text-gray-900">${formatter.format(initialAmount)}</span>
+                    </div>
+
+                    <div class="flex justify-between text-base text-gray-600">
+                        <span>5% Deduction:</span>
+                        <span class="text-red-600 font-medium">- ${formatter.format(deduction5)}</span>
+                    </div>
+
+                    <div class="flex justify-between text-base text-gray-600">
+                        <span>Amount After 5%:</span>
+                        <span class="font-medium">${formatter.format(amountAfter5)}</span>
+                    </div>
+
+                    <div class="flex justify-between text-base text-gray-600">
+                        <span>20% Deduction (from reduced amount):</span>
+                        <span class="text-red-600 font-medium">- ${formatter.format(deduction20)}</span>
+                    </div>
+
+                    <div class="flex justify-between border-t border-blue-300 pt-3">
+                        <span class="text-xl text-blue-600 font-extrabold">FINAL AMOUNT:</span>
+                        <span class="text-2xl text-blue-800 font-extrabold">${formatter.format(finalAmount)}</span>
+                    </div>
+
+                    <div class="text-center text-sm text-red-500 pt-1">
+                        Total Deduction: ${formatter.format(totalDeducted)}
+                    </div>
+                </div>
             `;
         }
 
-        window.onload = function () {
-            let savedInput = localStorage.getItem('lastInput');
-            if (savedInput) {
-                document.getElementById('inputX').value = savedInput;
-                calculateDeduction();
+        // --- Firestore Write Operation ---
+        async function saveInput(value) {
+            if (!db || !userId) return console.error("Database or User ID not ready for saving.");
+            try {
+                await setDoc(getDocRef(userId), {
+                    lastInput: value,
+                    timestamp: new Date()
+                });
+            } catch (error) {
+                console.error("Error saving input to Firestore:", error);
+            }
+        }
+
+        // --- Event Handlers ---
+        let debounceTimer;
+        inputField.addEventListener('input', (e) => {
+            const value = parseFloat(e.target.value);
+            calculateDeduction(value);
+
+            clearTimeout(debounceTimer);
+            if (value > 0) {
+                 debounceTimer = setTimeout(() => {
+                    saveInput(value);
+                }, 800); // Debounce save operation
+            } else {
+                 saveInput(0); // Save 0 or nullified data
+            }
+        });
+
+
+        // --- Firebase Initialization ---
+        window.onload = async function () {
+            if (!firebaseConfig) {
+                authStatusSpan.textContent = "Error: Firebase config missing.";
+                console.error("Firebase config is missing.");
+                return;
+            }
+
+            try {
+                setLogLevel('Debug');
+                const app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+
+                // Authenticate user
+                if (initialAuthToken) {
+                    await signInWithCustomToken(auth, initialAuthToken);
+                } else {
+                    await signInAnonymously(auth);
+                }
+
+                // Wait for auth state to be resolved
+                onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        userId = user.uid;
+                        authStatusSpan.textContent = `User ID: ${userId.substring(0, 4)}...`;
+                        initRealtimeListener(userId);
+                    } else {
+                        // This case should ideally not happen if signInAnonymously is successful,
+                        // but included for robustness.
+                        authStatusSpan.textContent = "Signed out/Anonymous failed.";
+                        console.log("No user signed in.");
+                    }
+                });
+
+            } catch (error) {
+                authStatusSpan.textContent = "Authentication Error";
+                console.error("Firebase Initialization Error:", error);
             }
         };
+
+        // --- Real-time Data Listener ---
+        function initRealtimeListener(uid) {
+            const dataRef = getDocRef(uid);
+            onSnapshot(dataRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    const savedInput = data.lastInput;
+                    if (savedInput && savedInput > 0) {
+                        // Update UI only if the current input field is not the same value
+                        if (parseFloat(inputField.value) !== savedInput) {
+                             inputField.value = savedInput;
+                        }
+                        calculateDeduction(savedInput);
+                    } else if (parseFloat(inputField.value) === 0) {
+                        // Clear if saved value is 0 and input is also 0
+                        inputField.value = '';
+                        calculateDeduction(0);
+                    }
+                }
+            }, (error) => {
+                console.error("Error setting up real-time listener:", error);
+                authStatusSpan.textContent = "Data Error";
+            });
+        }
     </script>
 </body>
-
 </html>
-
