@@ -376,6 +376,7 @@
         <div class="button-group">
             <button onclick="calculateTable()">Calculate</button>
             <button onclick="exportPDF()">Download as PDF</button>
+            <button onclick="downloadBlankPDF()">Download Blank PDF</button>
         </div>
 
         <div id="resultContainer"></div>
@@ -618,6 +619,74 @@
 
                 columnStyles: columnStyles
             });
+            doc.save(fileName);
+        }
+        function downloadBlankPDF() {
+            const { jsPDF } = window.jspdf;
+            const dateStr = document.getElementById("inputDate").value.trim();
+            const parsed = parseDateInput(dateStr);
+
+            if (!parsed) {
+                alert("Please enter a valid date in MM/YYYY format.");
+                return;
+            }
+
+            const doc = new jsPDF('p', 'mm', 'a4');
+            const pageWidth = doc.internal.pageSize.getWidth();
+            const sideMargin = 12;
+            const maxTableW = pageWidth - 2 * sideMargin;
+
+            const monthName = new Date(parsed.year, parsed.month - 1).toLocaleString('default', { month: 'long' });
+            const pageTitle = `Monthly Log Sheet Template: ${monthName} ${parsed.year}`;
+            const fileName = `Template_LogSheet_${monthName}_${parsed.year}.pdf`;
+
+            doc.setFontSize(14);
+            doc.text(pageTitle, pageWidth / 2, 15, { align: 'center' });
+
+            const headers = ["Date", "Starting KM", "Guest Start", "Guest Close", "Closing KM", "Total", "Time-in", "Time-out"];
+
+            const numDays = daysInMonth(parsed.month, parsed.year);
+            const rows = [];
+            for (let i = 1; i <= numDays; i++) {
+                const displayDate = `${String(i).padStart(2, '0')}-${monthName.slice(0, 3)}-${String(parsed.year).slice(-2)}`;
+                rows.push([displayDate, "", "", "", "", "", "", ""]);
+            }
+
+            const desired = [24, 27, 27, 27, 27, 14, 20, 20];
+            const totalDesired = desired.reduce((a, b) => a + b, 0);
+            const scale = Math.min(1, maxTableW / totalDesired);
+            const finalTableW = totalDesired * scale;
+            const columnStyles = {};
+            desired.forEach((w, i) => {
+                columnStyles[i] = { cellWidth: w * scale };
+            });
+            const marginX = (pageWidth - finalTableW) / 2;
+
+            doc.autoTable({
+                head: [headers],
+                body: rows,
+                startY: 22,
+                tableWidth: finalTableW,
+                margin: { left: marginX, right: marginX },
+                pageBreak: 'auto',
+                theme: 'grid',
+                styles: {
+                    fontSize: 6,
+                    cellPadding: 1,
+                    lineWidth: 0.1,
+                    lineColor: [180, 180, 180],
+                    halign: 'center',
+                    overflow: 'linebreak'
+                },
+                headStyles: {
+                    fillColor: [23, 162, 184],
+                    textColor: [255, 255, 255],
+                    fontStyle: 'bold',
+                    halign: 'center'
+                },
+                columnStyles: columnStyles
+            });
+
             doc.save(fileName);
         }
     </script>
