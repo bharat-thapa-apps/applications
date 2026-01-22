@@ -28,7 +28,7 @@
             border-radius: 16px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
             width: 100%;
-            max-width: 900px; /* Slightly wider to accommodate new column */
+            max-width: 950px; 
             margin-bottom: 30px;
             transition: transform 0.3s ease-in-out;
         }
@@ -46,7 +46,6 @@
             text-transform: uppercase;
         }
 
-
         .input-group {
             display: flex;
             flex-wrap: wrap;
@@ -62,7 +61,6 @@
             flex-grow: 1;
             min-width: 150px;
         }
-
 
         .input-group>button {
             flex-basis: 100%;
@@ -86,7 +84,6 @@
             text-transform: uppercase;
         }
 
-
         input[type="text"],
         input[type="number"],
         input[type="time"] {
@@ -109,7 +106,6 @@
             background-color: #ffffff;
         }
 
-
         button {
             padding: 12px 25px;
             border: none;
@@ -129,12 +125,10 @@
             box-shadow: 0 4px 10px rgba(23, 162, 184, 0.3);
         }
 
-
         #dailyEntriesHeader,
         #totalsContainer {
             display: none;
         }
-
 
         #totalsContainer.results-container-visible {
             display: flex;
@@ -162,7 +156,6 @@
             border-bottom: none;
         }
 
-
         .day-input-group {
             display: flex;
             align-items: center;
@@ -170,13 +163,12 @@
             gap: 10px;
         }
 
-
         .mobile-label {
             display: none;
         }
 
         .day-input-group input {
-            width: 90px;
+            width: 80px;
             text-align: center;
             padding: 6px 8px;
         }
@@ -186,12 +178,10 @@
             text-align: right;
         }
 
-
         #totalsContainer label {
             width: 120px;
             text-align: left;
         }
-
 
         table {
             width: 100%;
@@ -228,123 +218,17 @@
             background-color: #e9ecef;
         }
 
-        tr:last-child td {
-            border-bottom: none;
-        }
-
-
-        .container+a button {
-            margin-top: 20px;
-            background-color: #6c757d;
-        }
-
-        .container+a button:hover {
-            background-color: #5a6268;
-            box-shadow: 0 4px 10px rgba(108, 117, 125, 0.3);
-        }
-
-
         @media (max-width: 600px) {
-            body {
-                padding: 15px;
+            .day-input-group {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
             }
-
-            .container {
-                padding: 20px;
-            }
-
-            h2 {
-                font-size: 1.5rem;
-            }
-
-
-            .input-group {
-                flex-direction: column;
-                gap: 15px;
-                align-items: stretch;
-            }
-
-            .input-item {
-                min-width: auto;
-            }
-
-
-            .button-group {
-                flex-direction: column;
-                gap: 15px;
-            }
-
-            .button-group button {
-                min-width: 100%;
-            }
-
-
-            #totalsContainer.results-container-visible {
-                padding: 10px;
-            }
-
-            #totalsContainer div {
-
-                flex-direction: row;
-                align-items: center;
-                justify-content: space-between;
-                gap: 5px;
-            }
-
-            #totalsContainer label {
-                width: 100px;
-
-                margin-bottom: 0;
-                font-size: 14px;
-            }
-
-
             .mobile-label {
                 display: block;
                 font-size: 10px;
                 color: #6c757d;
                 text-align: center;
-                margin-top: 2px;
             }
-
-            .day-input-group {
-                display: grid;
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            .day-input-wrapper {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                margin-left: 0;
-            }
-
-            .day-input-group input[type="number"] {
-                width: 80px;
-                padding: 5px;
-                font-size: 13px;
-                height: 35px;
-            }
-
-            .day-input-group input[type="time"] {
-                width: 80px;
-                padding: 5px;
-                font-size: 13px;
-                height: 35px;
-            }
-
-
-            table {
-                display: block;
-                overflow-x: auto;
-
-            }
-
-
-            .input-group>button {
-                min-width: 100%;
-            }
-
             .mobile-mode {
                 flex-direction: column !important;
                 align-items: flex-start !important;
@@ -401,10 +285,7 @@
                 alert("Month must be 1-12");
                 return null;
             }
-            return {
-                month,
-                year
-            };
+            return { month, year };
         }
 
         function daysInMonth(month, year) {
@@ -426,16 +307,12 @@
             container.classList.add('results-container-visible');
 
             let numDays = daysInMonth(parsed.month, parsed.year);
-            let monthName = new Date(parsed.year, parsed.month - 1).toLocaleString('default', {
-                month: 'short'
-            });
+            let monthName = new Date(parsed.year, parsed.month - 1).toLocaleString('default', { month: 'short' });
 
             for (let i = 1; i <= numDays; i++) {
                 let displayDate = `${String(i).padStart(2, '0')}-${monthName}-${String(parsed.year)}`;
-
                 let div = document.createElement("div");
                 div.classList.add('mobile-mode');
-
 
                 div.innerHTML = `
                     <label>${displayDate}:</label> 
@@ -454,7 +331,11 @@
                         </div>
                         <div class="day-input-wrapper">
                             <input type="number" data-day="${i}" data-type="fuel" placeholder="Ltrs">
-                            <span class="mobile-label">Fuel</span>
+                            <span class="mobile-label">Fuel (L)</span>
+                        </div>
+                         <div class="day-input-wrapper">
+                            <input type="text" data-day="${i}" data-type="invoice" placeholder="Inv #">
+                            <span class="mobile-label">Invoice #</span>
                         </div>
                     </div>
                 `;
@@ -464,7 +345,8 @@
                     total: div.querySelector('input[data-type="total"]'),
                     timeIn: div.querySelector('input[data-type="time-in"]'),
                     timeOut: div.querySelector('input[data-type="time-out"]'),
-                    fuel: div.querySelector('input[data-type="fuel"]')
+                    fuel: div.querySelector('input[data-type="fuel"]'),
+                    invoice: div.querySelector('input[data-type="invoice"]')
                 });
             }
         }
@@ -482,7 +364,7 @@
 
             let table = document.createElement("table");
             let header = document.createElement("tr");
-            let headers = ["Date", "Starting KM", "Guest Start", "Guest Close", "Closing KM", "Total", "Time-in", "Time-out", "Fuel"];
+            let headers = ["Date", "Starting KM", "Guest Start", "Guest Close", "Closing KM", "Total", "Time-in", "Time-out", "Fuel", "Invoice No"];
             headers.forEach(h => {
                 let th = document.createElement("th");
                 th.textContent = h;
@@ -493,15 +375,14 @@
             let lastClosingKM = startKM;
             let dateStr = document.getElementById("inputDate").value.trim();
             let parsed = parseDateInput(dateStr);
-            let monthName = new Date(parsed.year, parsed.month - 1).toLocaleString('default', {
-                month: 'short'
-            });
+            let monthName = new Date(parsed.year, parsed.month - 1).toLocaleString('default', { month: 'short' });
 
             entriesTotal.forEach((entry, index) => {
                 let totalEntry = entry.total.value.trim();
                 let timeInEntry = entry.timeIn.value.trim();
                 let timeOutEntry = entry.timeOut.value.trim();
                 let fuelEntry = entry.fuel.value.trim();
+                let invoiceEntry = entry.invoice.value.trim();
 
                 let currentKM = lastClosingKM;
                 let day = index + 1;
@@ -516,7 +397,8 @@
                     Total: '',
                     "Time-in": timeInEntry,
                     "Time-out": timeOutEntry,
-                    Fuel: fuelEntry
+                    Fuel: fuelEntry,
+                    "Invoice No": invoiceEntry
                 };
 
                 if (totalEntry !== '') {
@@ -536,13 +418,12 @@
                         Total: c5,
                         "Time-in": timeInEntry,
                         "Time-out": timeOutEntry,
-                        Fuel: fuelEntry
+                        Fuel: fuelEntry,
+                        "Invoice No": invoiceEntry
                     };
                 }
 
-
                 tableData.push(rowData);
-
                 let tr = document.createElement("tr");
                 headers.forEach(h => {
                     let td = document.createElement("td");
@@ -551,139 +432,69 @@
                 });
                 table.appendChild(tr);
             });
-
             container.appendChild(table);
         }
 
         function exportPDF() {
-            if (tableData.length === 0) {
-                alert("Calculate table first");
-                return;
-            }
+            if (tableData.length === 0) { alert("Calculate table first"); return; }
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF('p', 'mm', 'a4');
             const pageWidth = doc.internal.pageSize.getWidth();
-            const sideMargin = 10;
-            const maxTableW = pageWidth - 2 * sideMargin;
             const dateStr = document.getElementById("inputDate").value.trim();
-            const parsed = parseDateInput(dateStr) || {
-                month: 1,
-                year: new Date().getFullYear()
-            };
-            const monthName = new Date(parsed.year, parsed.month - 1).toLocaleString('default', {
-                month: 'long'
-            });
-            const pageTitle = `Monthly Log Sheet: ${monthName} ${parsed.year}`;
-            const fileName = `LogSheet_${monthName}_${parsed.year}.pdf`;
+            const parsed = parseDateInput(dateStr);
+            const monthName = new Date(parsed.year, parsed.month - 1).toLocaleString('default', { month: 'long' });
             
             doc.setFontSize(14);
-            doc.text(pageTitle, pageWidth / 2, 15, { align: 'center' });
+            doc.text(`Monthly Log Sheet: ${monthName} ${parsed.year}`, pageWidth / 2, 15, { align: 'center' });
             
-            const headers = ["Date", "Start KM", "Guest Start", "Guest Close", "Close KM", "Total", "In", "Out", "Fuel"];
+            const headers = ["Date", "Start KM", "Guest Start", "Guest Close", "Close KM", "Total", "Time-In", "Time-Out", "Fuel", "Invoice No"];
             const rows = tableData.map(r => [
                 r["Date"], r["Starting KM"], r["Guest Start"], r["Guest Close"], 
-                r["Closing KM"], r["Total"], r["Time-in"], r["Time-out"], r["Fuel"]
+                r["Closing KM"], r["Total"], r["Time-in"], r["Time-out"], r["Fuel"], r["Invoice No"]
             ]);
 
-            // Adjusted column widths to fit Fuel column
-            const desired = [22, 24, 24, 24, 24, 12, 12, 12, 12];
+            const desired = [18, 22, 22, 22, 22, 12, 12, 12, 12, 18]; // Adjusting widths
             const totalDesired = desired.reduce((a, b) => a + b, 0);
-            const scale = Math.min(1, maxTableW / totalDesired);
-            const finalTableW = totalDesired * scale;
+            const scale = (pageWidth - 20) / totalDesired;
             const columnStyles = {};
             desired.forEach((w, i) => { columnStyles[i] = { cellWidth: w * scale }; });
             
-            const marginX = (pageWidth - finalTableW) / 2;
             doc.autoTable({
                 head: [headers],
                 body: rows,
                 startY: 22,
-                tableWidth: finalTableW,
-                margin: { left: marginX, right: marginX, top: 22, bottom: sideMargin },
-                pageBreak: 'auto',
                 theme: 'grid',
-                styles: {
-                    fontSize: 6.5,
-                    cellPadding: 1,
-                    lineWidth: 0.1,
-                    lineColor: [180, 180, 180],
-                    halign: 'center',
-                    overflow: 'linebreak'
-                },
-                headStyles: {
-                    fillColor: [23, 162, 184],
-                    textColor: [255, 255, 255],
-                    fontStyle: 'bold',
-                    halign: 'center'
-                },
+                styles: { fontSize: 6, halign: 'center', cellPadding: 1 },
+                headStyles: { fillColor: [23, 162, 184] },
                 columnStyles: columnStyles
             });
-            doc.save(fileName);
+            doc.save(`LogSheet_${monthName}.pdf`);
         }
 
         function downloadBlankPDF() {
             const { jsPDF } = window.jspdf;
             const dateStr = document.getElementById("inputDate").value.trim();
             const parsed = parseDateInput(dateStr);
-
-            if (!parsed) {
-                alert("Please enter a valid date in MM/YYYY format.");
-                return;
-            }
+            if (!parsed) return;
 
             const doc = new jsPDF('p', 'mm', 'a4');
-            const pageWidth = doc.internal.pageSize.getWidth();
-            const sideMargin = 10;
-            const maxTableW = pageWidth - 2 * sideMargin;
-
             const monthName = new Date(parsed.year, parsed.month - 1).toLocaleString('default', { month: 'long' });
-            const pageTitle = `Monthly Log Sheet Template: ${monthName} ${parsed.year}`;
-            const fileName = `Template_LogSheet_${monthName}_${parsed.year}.pdf`;
-
             doc.setFontSize(14);
-            doc.text(pageTitle, pageWidth / 2, 15, { align: 'center' });
+            doc.text(`Template: ${monthName} ${parsed.year}`, doc.internal.pageSize.getWidth() / 2, 15, { align: 'center' });
 
-            const headers = ["Date", "Start KM", "Guest Start", "Guest Close", "Close KM", "Total", "Fuel", "In", "Out"];
+            const headers = ["Date", "Start KM", "Guest Start", "Guest Close", "Close KM", "Total", "Time-In", "Time-Out", "Fuel", "Invoice No"];
             const numDays = daysInMonth(parsed.month, parsed.year);
-            const rows = [];
-            for (let i = 1; i <= numDays; i++) {
-                const displayDate = `${String(i).padStart(2, '0')}-${monthName.slice(0, 3)}-${String(parsed.year).slice(-2)}`;
-                rows.push([displayDate, "", "", "", "", "", "", "", ""]);
-            }
-
-            const desired = [22, 24, 24, 24, 24, 12, 12, 18, 18];
-            const totalDesired = desired.reduce((a, b) => a + b, 0);
-            const scale = Math.min(1, maxTableW / totalDesired);
-            const finalTableW = totalDesired * scale;
-            const columnStyles = {};
-            desired.forEach((w, i) => { columnStyles[i] = { cellWidth: w * scale }; });
-
-            const marginX = (pageWidth - finalTableW) / 2;
+            const rows = Array.from({ length: numDays }, (_, i) => [`${String(i+1).padStart(2, '0')}-${monthName.slice(0,3)}`, "", "", "", "", "", "", "", "", ""]);
 
             doc.autoTable({
                 head: [headers],
                 body: rows,
                 startY: 22,
-                tableWidth: finalTableW,
-                margin: { left: marginX, right: marginX },
-                pageBreak: 'auto',
                 theme: 'grid',
-                styles: {
-                    fontSize: 6.5,
-                    cellPadding: 1,
-                    lineWidth: 0.1,
-                    lineColor: [180, 180, 180],
-                    halign: 'center'
-                },
-                headStyles: {
-                    fillColor: [23, 162, 184],
-                    textColor: [255, 255, 255],
-                    fontStyle: 'bold'
-                },
-                columnStyles: columnStyles
+                styles: { fontSize: 6, halign: 'center' },
+                headStyles: { fillColor: [23, 162, 184] }
             });
-
-            doc.save(fileName);
+            doc.save(`Template_${monthName}.pdf`);
         }
     </script>
     <a href="index.html"><button style="background-color: #6c757d; margin-top: 20px;">Return</button></a>
