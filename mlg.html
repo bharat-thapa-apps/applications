@@ -260,7 +260,7 @@
         <div class="button-group">
             <button onclick="calculateTable()">Calculate</button>
             <button onclick="exportPDF()">Download PDF</button>
-            <button onclick="downloadBlankPDF(); location.reload()">Blank PDF Template</button>
+            <button onclick="downloadBlankPDF()">Blank PDF Template</button>
         </div>
 
         <div id="resultContainer"></div>
@@ -484,7 +484,7 @@
 
             const headers = ["Date", "Start KM", "Guest Start", "Guest Close", "Close KM", "Total", "Time-In", "Time-Out", "Fuel", "Invoice No"];
             const numDays = daysInMonth(parsed.month, parsed.year);
-            const rows = Array.from({ length: numDays }, (_, i) => [`${String(i+1).padStart(2, '0')}-${monthName.slice(0,3)}`, "", "", "", "", "", "", "", "", ""]);
+            const rows = Array.from({ length: numDays }, (_, i) => [`${String(i+1).padStart(2, '0')}-${monthName.slice(0,3)}-${parsed.year}`, "", "", "", "", "", "", "", "", ""]);
 
             doc.autoTable({
                 head: [headers],
@@ -501,5 +501,3 @@
 </body>
 
 </html>
-
-
