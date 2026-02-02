@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Dashboard</title>
-    <!-- Use the Inter font from Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <!-- Load Tailwind CSS from CDN for styling -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body {
@@ -16,12 +14,10 @@
         }
     </style>
 </head>
-<body class="flex items-center justify-center min-h-screen p-4">
+<body class="flex items-center justify-center min-h-screen p-4 sm:p-8">
 
-    <!-- Main container for the app dashboard -->
-    <div class="bg-white rounded-[2rem] shadow-2xl shadow-gray-300 p-8 sm:p-12 w-full max-w-5xl">
+    <div class="bg-white rounded-[2.5rem] shadow-2xl shadow-gray-300 p-8 sm:p-12 w-full max-w-6xl">
 
-        <!-- Header section with a title and description -->
         <header class="mb-12 text-center">
             <h1 class="text-5xl sm:text-6xl font-extrabold text-gray-900 mb-4 tracking-tight">
                 Apps Hub
@@ -31,77 +27,73 @@
             </p>
         </header>
 
-        <!-- Container for the app cards, using a responsive grid layout -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
 
-            <!-- Card for Percentage Deduction Calculator -->
             <a href="pdc.html" class="app-card group">
                 <div class="p-6">
                     <div class="flex items-center space-x-4 mb-4">
-                        <!-- Icon Placeholder (Emoji for simplicity) -->
-                        <div class="bg-blue-100 text-blue-600 p-4 rounded-xl text-3xl transition-colors duration-300 group-hover:bg-blue-600 group-hover:text-white">
+                        <div class="bg-blue-100 text-blue-600 p-4 rounded-xl text-3xl transition-colors duration-300 group-hover:bg-white group-hover:text-blue-600">
                             %
                         </div>
                         <h2 class="text-2xl font-bold text-gray-900">
-                            Percentage Deduction Calculator
+                            Percentage Calculator
                         </h2>
                     </div>
                     <p class="text-gray-500 mb-4">
-                        Quickly calculate discounts, sales tax, or complex percentage decreases with ease.
+                        Quickly calculate discounts, sales tax, or complex percentage decreases.
                     </p>
-                    <span class="text-blue-500 font-semibold group-hover:text-white transition-colors duration-300">
+                    <span class="text-blue-500 font-semibold group-hover:text-blue-100 transition-colors duration-300">
                         Launch App &rarr;
                     </span>
                 </div>
             </a>
 
-            <!-- Card for Monthly Log Generator -->
             <a href="mlg.html" class="app-card group">
                 <div class="p-6">
                     <div class="flex items-center space-x-4 mb-4">
-                        <!-- Icon Placeholder (Emoji for simplicity) -->
-                        <div class="bg-green-100 text-green-600 p-4 rounded-xl text-3xl transition-colors duration-300 group-hover:bg-green-600 group-hover:text-white">
-                            &#128197; <!-- Calendar Emoji -->
+                        <div class="bg-green-100 text-green-600 p-4 rounded-xl text-3xl transition-colors duration-300 group-hover:bg-white group-hover:text-green-600">
+                            📅
                         </div>
                         <h2 class="text-2xl font-bold text-gray-900">
                             Monthly Log Generator
                         </h2>
                     </div>
                     <p class="text-gray-500 mb-4">
-                        Generate formatted summaries and chronological time logs for reporting and review.
+                        Generate formatted summaries and chronological logs for reporting.
                     </p>
-                    <span class="text-green-500 font-semibold group-hover:text-white transition-colors duration-300">
+                    <span class="text-green-500 font-semibold group-hover:text-green-100 transition-colors duration-300">
                         Launch App &rarr;
                     </span>
                 </div>
             </a>
 
-            <!-- Placeholder Card 3 (Optional) -->
-            <a href="#" class="app-card group opacity-50 cursor-not-allowed">
+            <a href="guest-log.html" class="app-card group guest-card">
                 <div class="p-6">
                     <div class="flex items-center space-x-4 mb-4">
-                        <!-- Icon Placeholder -->
-                        <div class="bg-gray-100 text-gray-400 p-4 rounded-xl text-3xl">
-                            &#9999; <!-- Pencil Emoji -->
+                        <div class="bg-purple-100 text-purple-600 p-4 rounded-xl text-3xl transition-colors duration-300 group-hover:bg-white group-hover:text-purple-600">
+                            👤
                         </div>
-                        <h2 class="text-2xl font-bold text-gray-400">
-                            New App Coming Soon
+                        <h2 class="text-2xl font-bold text-gray-900">
+                            Guest Log Sheet
                         </h2>
                     </div>
-                    <p class="text-gray-400 mb-4">
-                        Stay tuned for more utility tools and enhanced features.
+                    <p class="text-gray-500 mb-4">
+                        Track visitor entries, duration, and guest check-ins for the current month.
                     </p>
-                    <span class="text-gray-400 font-semibold">
-                        In Development
+                    <span class="text-purple-500 font-semibold group-hover:text-purple-100 transition-colors duration-300">
+                        Open Sheet &rarr;
                     </span>
                 </div>
             </a>
 
         </div>
+
+        <footer class="mt-12 text-center text-gray-400 text-sm">
+            &copy; 2026 Dashboard Portal • Built with Inter & Tailwind
+        </footer>
     </div>
 
     <script>
-        // Custom CSS for card styling that uses group-hover states
         document.addEventListener('DOMContentLoaded', () => {
             const style = document.createElement('style');
             style.textContent = `
@@ -109,30 +101,40 @@
                     display: block;
                     background-color: #ffffff;
                     border: 1px solid #e5e7eb;
-                    border-radius: 1.5rem; /* rounded-3xl equivalent */
-                    transition: all 0.3s ease;
-                    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+                    border-radius: 1.5rem;
+                    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
                 }
 
-                /* Active Card Hover State */
-                .app-card:not(.opacity-50):hover {
-                    transform: translateY(-5px);
-                    box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.3), 0 4px 6px -4px rgba(37, 99, 235, 0.3);
-                    background-color: theme('colors.blue.600');
-                    color: white;
+                /* Base Hover Logic for specific apps */
+                
+                /* Blue Card Hover */
+                .app-card:not(.guest-card):not([href="mlg.html"]):hover {
+                    transform: translateY(-8px);
+                    background-color: #2563eb; /* blue-600 */
+                    box-shadow: 0 20px 25px -5px rgba(37, 99, 235, 0.2);
                 }
 
-                /* Nested element color changes on hover */
-                .app-card:not(.opacity-50):hover h2 {
-                    color: white;
+                /* Green Card Hover (Specific targeting by href or class can be used) */
+                .app-card[href="mlg.html"]:hover {
+                    transform: translateY(-8px);
+                    background-color: #16a34a; /* green-600 */
+                    box-shadow: 0 20px 25px -5px rgba(22, 163, 74, 0.2);
                 }
-                .app-card:not(.opacity-50):hover p {
-                    color: theme('colors.blue.100');
+
+                /* Purple Guest Card Hover */
+                .guest-card:hover {
+                    transform: translateY(-8px);
+                    background-color: #9333ea; /* purple-600 */
+                    box-shadow: 0 20px 25px -5px rgba(147, 51, 234, 0.2);
                 }
+
+                /* Text Color Overrides on Hover */
+                .app-card:hover h2 { color: white !important; }
+                .app-card:hover p { color: rgba(255, 255, 255, 0.8) !important; }
             `;
             document.head.appendChild(style);
         });
     </script>
 </body>
 </html>
-
