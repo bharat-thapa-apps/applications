@@ -2,294 +2,316 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Vehicle Log</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-  <style>
-    :root {
-      --primary: #2563eb;
-      --bg: #f8fafc;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vehicle Log</title>
 
-    body {
-      font-family: sans-serif;
-      margin: 0;
-      background: var(--bg);
-    }
+    <!-- jsPDF + AutoTable -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
 
-    /* UI CONTROLS */
-    .controls {
-      padding: 15px;
-      background: #fff;
-      border-bottom: 1px solid #ddd;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-    }
+    <style>
+        :root {
+            --primary: #2563eb;
+            --bg: #f8fafc;
+            --danger: #ef4444;
+            --border: #e5e7eb;
+        }
 
-    .input-row {
-      display: flex;
-      gap: 10px;
-    }
+        body {
+            font-family: system-ui, sans-serif;
+            margin: 0;
+            background: var(--bg);
+        }
 
-    .controls input {
-      flex: 1;
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-    }
+        /* ---------- CONTROLS ---------- */
 
-    .btn-group {
-      display: flex;
-      gap: 10px;
-    }
+        .controls {
+            padding: 12px;
+            background: #fff;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
 
-    button {
-      flex: 1;
-      padding: 12px;
-      border: none;
-      border-radius: 4px;
-      color: white;
-      font-weight: bold;
-      cursor: pointer;
-    }
+        .input-row {
+            display: flex;
+            gap: 10px;
+        }
 
-    .btn-gen {
-      background: #666;
-    }
+        input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 14px;
+        }
 
-    .btn-pdf {
-      background: var(--primary);
-    }
+        .btn-group {
+            display: flex;
+            gap: 10px;
+        }
 
-    /* MOBILE VIEW */
+        button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 14px;
+        }
 
-    #mobileView {
-      padding: 10px;
-    }
+        .btn-reset {
+            background: var(--danger);
+        }
 
-    .log-card {
-      background: white;
-      border-radius: 8px;
-      padding: 12px;
-      margin-bottom: 12px;
-      border: 1px solid #e2e8f0;
-    }
+        .btn-pdf {
+            background: var(--primary);
+        }
 
-    .card-header {
-      font-weight: bold;
-      color: var(--primary);
-      margin-bottom: 8px;
-      border-bottom: 1px solid #eee;
-    }
+        /* ---------- LOG CARDS ---------- */
 
-    .grid-inputs {
-      display: grid;
-      /* grid-template-columns: 1fr 1fr; */
-      gap: 8px;
-    }
+        #mobileView {
+            padding: 10px;
+            padding-bottom: 60px;
+        }
 
-    .field {
-      display: flex;
-      flex-direction: column;
-      font-size: 11px;
-      color: #555;
-    }
+        .log-card {
+            background: white;
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 14px;
+            border: 1px solid var(--border);
+        }
 
-    .field input {
-      padding: 8px;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      margin-top: 2px;
-    }
+        .card-header {
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 10px;
+            padding-bottom: 4px;
+            border-bottom: 1px solid var(--border);
+        }
 
-    .field input[readonly] {
-      background: #f0f0f0;
-      font-weight: bold;
-    }
+        /* ---------- RESPONSIVE GRID ---------- */
 
-    /* PDF AREA FIX: Make it "visible" but off-screen */
-    #pdfArea {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 297mm;
-      /* A4 Landscape Width */
-      z-index: -1;
-      visibility: hidden;
-      background: white;
-    }
+        .grid-inputs {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 8px;
+        }
 
-    /* PDF TABLE STYLING */
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      table-layout: fixed;
-    }
+        @media (min-width: 600px) {
+            .grid-inputs {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
 
-    th,
-    td {
-      border: 1px solid #000;
-      padding: 4px 2px;
-      text-align: center;
-      font-size: 11px;
-      color: #000;
-    }
+        .field {
+            display: flex;
+            flex-direction: column;
+            font-size: 12px;
+            color: #555;
+        }
 
-    th {
-      background: #eee;
-    }
+        .field input {
+            margin-top: 4px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            min-height: 20px;
+        }
 
-    .pdf-input {
-      border: none;
-      width: 100%;
-      text-align: center;
-      background: transparent;
-      display: block;
-    }
-  </style>
+        .field input[readonly] {
+            background: #f1f5f9;
+            font-weight: bold;
+        }
+    </style>
 </head>
 
 <body>
 
-  <div class="controls">
-    <div class="input-row">
-      <input type="month" id="month">
-      <input type="number" id="startKM" value="100000">
+    <div class="controls">
+        <div class="input-row">
+            <input type="month" id="month" onchange="generate()">
+            <input type="number" id="startKM" placeholder="Start KM" oninput="saveAndCalc()">
+        </div>
+        <div class="btn-group">
+            <button class="btn-reset" onclick="clearAll()">Clear Data</button>
+            <button class="btn-pdf" onclick="exportPDF()">Export PDF</button>
+        </div>
     </div>
-    <div class="btn-group">
-      <button class="btn-gen" onclick="generate()">Reset</button>
-      <button class="btn-pdf" onclick="exportPDF()">Export PDF</button>
-    </div>
-  </div>
 
-  <div id="mobileView"></div>
+    <div id="mobileView"></div>
 
-  <div id="pdfArea">
-    <div id="captureContent" style="padding: 10mm; padding-top: 0;">
-      <h2 style="text-align: center; color: black; margin-top: 0;">Monthly Log Sheet</h2>
-      <table>
-        <thead>
-          <tr>
-            <th style="width:65px">Date</th>
-            <th style="width:85px">Garage Starting KM</th>
-            <th style="width:70px">Garage Starting Time</th>
-            <th style="width:85px">Garage Closing KM</th>
-            <th style="width:70px">Garage Closing Time</th>
-            <th style="width:65px">Total KM</th>
-            <th style="width:75px">Parking</th>
-            <th style="width:120px">Guest Signature</th>
-          </tr>
-        </thead>
-        <tbody id="pdfBody"></tbody>
-      </table>
-    </div>
-  </div>
+    <script>
+        function saveAndCalc() {
+            const monthKey = month.value;
+            const startKMVal = startKM.value;
 
-  <script>
-    function generate() {
-      const m = document.getElementById("month").value;
-      if (!m) return;
-      const [y, mo] = m.split("-");
-      const days = new Date(y, mo, 0).getDate();
-      const mon = new Date(y, mo - 1).toLocaleString("en", { month: "short" });
+            const dailyData = {};
+            document.querySelectorAll(".log-card").forEach(card => {
+                const day = card.dataset.day;
+                dailyData[day] = {
+                    st: card.querySelector(".m-st").value,
+                    ct: card.querySelector(".m-ct").value,
+                    t: card.querySelector(".m-t").value,
+                    p: card.querySelector(".m-p").value
+                };
+            });
 
-      document.getElementById("mobileView").innerHTML = "";
-      document.getElementById("pdfBody").innerHTML = "";
+            localStorage.setItem(
+                `log_${monthKey}`,
+                JSON.stringify({ startKM: startKMVal, dailyData })
+            );
 
-      for (let i = 1; i <= days; i++) {
-        const dateStr = `${i.toString().padStart(2, '0')}-${mon}-${y.slice(-2)}`;
-
-        // Mobile UI Card
-        document.getElementById("mobileView").innerHTML += `
-            <div class="log-card" id="card-${i}">
-                <div class="card-header">${dateStr}</div>
-                <div class="grid-inputs">
-                    <div class="field">Start KM <input class="m-s" readonly></div>
-                    <div class="field">Start Time <input type="time" class="m-st"></div>
-                    <div class="field">Total KM <input type="number" class="m-t" oninput="calc()"></div>
-                    <div class="field">Close KM <input class="m-c" readonly></div>
-                    <div class="field">Close Time <input type="time" class="m-ct"></div>
-                    <div class="field">Parking <input type="number" class="m-p"></div>
-                </div>
-            </div>`;
-
-        // PDF Row
-        document.getElementById("pdfBody").innerHTML += `
-            <tr id="row-${i}">
-                <td>${dateStr}</td>
-                <td class="p-s"></td>
-                <td class="p-st"></td>
-                <td class="p-c"></td>
-                <td class="p-ct"></td>
-                <td class="p-t"></td>
-                <td class="p-p"></td>
-                <td></td>
-            </tr>`;
-      }
-      calc();
-    }
-
-    function calc() {
-      let km = +document.getElementById("startKM").value || 0;
-      const cards = document.querySelectorAll('.log-card');
-
-      cards.forEach((card, index) => {
-        const i = index + 1;
-        const totalVal = +card.querySelector('.m-t').value;
-        const row = document.getElementById(`row-${i}`);
-
-        if (totalVal > 0) {
-          const closing = km + totalVal;
-          // Update Mobile
-          card.querySelector('.m-s').value = km;
-          card.querySelector('.m-c').value = closing;
-          // Update PDF Cells
-          row.querySelector('.p-s').innerText = km;
-          row.querySelector('.p-c').innerText = closing;
-          row.querySelector('.p-t').innerText = totalVal;
-
-          km = closing;
-        } else {
-          card.querySelector('.m-s').value = card.querySelector('.m-c').value = "";
-          row.querySelector('.p-s').innerText = row.querySelector('.p-c').innerText = row.querySelector('.p-t').innerText = "";
+            calc();
         }
-        // Sync secondary fields
-        row.querySelector('.p-st').innerText = card.querySelector('.m-st').value;
-        row.querySelector('.p-ct').innerText = card.querySelector('.m-ct').value;
-        row.querySelector('.p-p').innerText = card.querySelector('.m-p').value;
-      });
-    }
 
-    function exportPDF() {
-      calc();
-      const element = document.getElementById("captureContent");
+        function loadData() {
+            const saved = localStorage.getItem(`log_${month.value}`);
+            return saved ? JSON.parse(saved) : null;
+        }
 
-      // Make the PDF area visible just for the capture
-      const area = document.getElementById("pdfArea");
-      area.style.visibility = "visible";
+        function clearAll() {
+            if (confirm("Delete this month's data?")) {
+                localStorage.removeItem(`log_${month.value}`);
+                generate();
+            }
+        }
 
-      const opt = {
-        margin: 0,
-        filename: 'vehicle-log.pdf',
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 3, useCORS: true, letterRendering: true },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
-      };
+        function generate() {
+            if (!month.value) return;
 
-      html2pdf().set(opt).from(element).save().then(() => {
-        area.style.visibility = "hidden"; // Hide it again after downloading
-      });
-    }
+            const [y, mo] = month.value.split("-");
+            const days = new Date(y, mo, 0).getDate();
+            const monShort = new Date(y, mo - 1).toLocaleString("en", { month: "short" });
 
-    // Set default month
-    document.getElementById("month").value = new Date().toISOString().slice(0, 7);
-    generate();
-  </script>
+            mobileView.innerHTML = "";
+            const saved = loadData();
+            if (saved) startKM.value = saved.startKM;
+
+            for (let i = 1; i <= days; i++) {
+                const dateStr = `${String(i).padStart(2, "0")}-${monShort}-${y.slice(-2)}`;
+                const d = saved?.dailyData?.[i] || {};
+
+                mobileView.innerHTML += `
+          <div class="log-card" data-day="${i}">
+            <div class="card-header">${dateStr}</div>
+            <div class="grid-inputs">
+              <div class="field">Start KM <input class="m-s" readonly></div>
+              <div class="field">Close KM <input class="m-c" readonly></div>
+
+              <div class="field">Total KM <input type="number" class="m-t" value="${d.t || ""}" oninput="saveAndCalc()"></div>
+              <div class="field">Parking <input type="number" class="m-p" value="${d.p || ""}" oninput="saveAndCalc()"></div>
+
+              <div class="field">Start Time <input type="time" class="m-st" value="${d.st || ""}" oninput="saveAndCalc()"></div>
+              <div class="field">Close Time <input type="time" class="m-ct" value="${d.ct || ""}" oninput="saveAndCalc()"></div>
+            </div>
+          </div>`;
+            }
+            calc();
+        }
+
+        function calc() {
+            let km = +startKM.value || 0;
+            document.querySelectorAll(".log-card").forEach(card => {
+                const total = +card.querySelector(".m-t").value || 0;
+                if (total) {
+                    card.querySelector(".m-s").value = km;
+                    card.querySelector(".m-c").value = km + total;
+                    km += total;
+                } else {
+                    card.querySelector(".m-s").value = "";
+                    card.querySelector(".m-c").value = "";
+                }
+            });
+        }
+
+        function exportPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF("landscape", "mm", "a4");
+
+            doc.setFontSize(14);
+            const [year, monthNum] = month.value.split("-");
+            const monthName = new Date(year, monthNum - 1)
+                .toLocaleString("en", { month: "long" });
+
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(16);
+            doc.text(
+                "Vehicle Log Sheet - " + monthName + " " + year,
+                148,
+                10,
+                { align: "center" }
+            );
+
+
+            const body = [];
+
+            document.querySelectorAll(".log-card").forEach(card => {
+                body.push([
+                    card.querySelector(".card-header").innerText,
+                    card.querySelector(".m-s").value,
+                    card.querySelector(".m-st").value,
+                    card.querySelector(".m-c").value,
+                    card.querySelector(".m-ct").value,
+                    card.querySelector(".m-t").value,
+                    card.querySelector(".m-p").value,
+                    ""
+                ]);
+            });
+
+            doc.autoTable({
+                startY: 15,
+                head: [[
+                    "Date", "Garage Starting KM", "Garage Starting Time",
+                    "Garage Closing KM", "Garage Closing Time",
+                    "Total KM", "Parking", "Guest Signature"
+                ]],
+                body,
+                styles: {
+                    fontSize: 9,
+                    halign: "center",
+                    cellPadding: 1, textColor: [0, 0, 0], // pure black
+                    lineColor: [0, 0, 0], // pure black borders
+                    lineWidth: 0.2,
+                    fillColor: false
+                },
+                theme: "grid",
+                headStyles: {
+                    fillColor: [230, 230, 230], // light neutral gray
+                    textColor: [0, 0, 0],
+                    lineColor: [0, 0, 0],
+                    lineWidth: 0.2,
+                    fontStyle: "bold"
+                },
+
+                columnStyles: {
+                    0: { cellWidth: 30 },
+                    1: { cellWidth: 35 },
+                    2: { cellWidth: 35 },
+                    3: { cellWidth: 35 },
+                    4: { cellWidth: 35 },
+                    5: { cellWidth: 25 },
+                    6: { cellWidth: 25 },
+                    7: { cellWidth: 50 }
+                }
+            });
+
+            doc.save("Vehicle_Log_" + month.value + ".pdf");
+        }
+
+
+        month.value = new Date().toISOString().slice(0, 7);
+        generate();
+    </script>
 
 </body>
 
