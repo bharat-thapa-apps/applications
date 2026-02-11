@@ -5,8 +5,8 @@ const HASHES = [
 const TIMEOUT_DURATION = 30 * 60 * 1000; // 30 Minutes
 
 function protect() {
-  const authOk = sessionStorage.getItem('auth_ok') === 'yes';
-  const loginTime = sessionStorage.getItem('auth_time');
+  const authOk = sessionStorage.getItem('auth2_ok') === 'yes';
+  const loginTime = sessionStorage.getItem('auth2_time');
   const now = Date.now();
 
   if (authOk && loginTime && now - loginTime > TIMEOUT_DURATION) {
@@ -84,16 +84,12 @@ function protect() {
           .map((b) => b.toString(16).padStart(2, '0'))
           .join('');
       } else {
-        // Fallback: This is tricky with multiple hashes.
-        // If you are on GitHub Pages, you won't need this fallback.
-        // But for local testing, it will try to hash the plain text 'password'
         hashHex = val;
       }
 
-      // UPDATED LINE: Checks the array
       if (HASHES.includes(hashHex)) {
-        sessionStorage.setItem('auth_ok', 'yes');
-        sessionStorage.setItem('auth_time', Date.now());
+        sessionStorage.setItem('auth2_ok', 'yes');
+        sessionStorage.setItem('auth2_time', Date.now());
         location.reload();
       } else {
         btn.innerText = 'Verify Identity';
