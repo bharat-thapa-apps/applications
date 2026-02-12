@@ -497,7 +497,7 @@
 
       const doc = new jsPDF('landscape', 'mm', 'a4');
       const monthName = new Date(parsed.year, parsed.month - 1).toLocaleString('default', { month: 'long' });
-      doc.setFontSize(14);
+      doc.setFontSize(16);
       doc.text(`Log Sheet - ${monthName} ${parsed.year}`, doc.internal.pageSize.getWidth() / 2, 15, { align: 'center' });
 
       const headers = ["Date", "Start KM", "Guest Start", "Guest Close", "Close KM", "Total", "Time-In", "Time-Out", "Fuel", "Invoice No"];
@@ -510,7 +510,7 @@
         startY: 22,
         theme: 'grid',
         styles: {
-          fontSize: 6,
+          fontSize: 8,
           halign: 'center',
           cellPadding: 1,
           lineColor: [0, 0, 0],
@@ -522,7 +522,8 @@
           textColor: [0, 0, 0],
           lineColor: [0, 0, 0],
           lineWidth: 0.2,
-          fontStyle: "bold"
+          fontStyle: "bold",
+          fontSize: 10,
         },
       });
       doc.save(`LogSheet_${monthName}.pdf`);
