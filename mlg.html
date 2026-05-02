@@ -265,6 +265,7 @@
       <button onclick="calculateTable()">Calculate</button>
       <button onclick="exportPDF()">Download PDF</button>
       <button onclick="downloadBlankPDF()">Blank PDF Template</button>
+      <button onclick="clearStoredData()" style="background-color: #dc3545;">Clear Data</button>
     </div>
 
     <div id="resultContainer"></div>
@@ -277,10 +278,23 @@
     let entriesTotal = [];
     let tableData = [];
 
+    // Run on Page Load to restore data
+    window.onload = function() {
+      const savedDate = localStorage.getItem('logDate');
+      const savedStartKM = localStorage.getItem('logStartKM');
+      
+      if (savedDate) document.getElementById("inputDate").value = savedDate;
+      if (savedStartKM) document.getElementById("startKM").value = savedStartKM;
+      
+      if (savedDate) {
+        generateDayInputs(true); // pass true to avoid overwriting metadata during initial load
+      }
+    };
+
     function parseDateInput(dateStr) {
       let parts = dateStr.split('/');
       if (parts.length !== 2) {
-        alert("Invalid date format");
+        alert("Invalid date format. Use MM/YYYY");
         return null;
       }
       let month = parseInt(parts[0]);
@@ -296,16 +310,21 @@
       return new Date(year, month, 0).getDate();
     }
 
-    function generateDayInputs() {
+    function generateDayInputs(isInitialLoad = false) {
       let container = document.getElementById("totalsContainer");
       let header = document.getElementById("dailyEntriesHeader");
+      let dateStr = document.getElementById("inputDate").value.trim();
+      let startKM = document.getElementById("startKM").value;
+
+      let parsed = parseDateInput(dateStr);
+      if (!parsed) return;
+
+      // Save metadata to local storage
+      localStorage.setItem('logDate', dateStr);
+      localStorage.setItem('logStartKM', startKM);
 
       container.innerHTML = '';
       entriesTotal = [];
-
-      let dateStr = document.getElementById("inputDate").value.trim();
-      let parsed = parseDateInput(dateStr);
-      if (!parsed) return;
 
       header.style.display = 'block';
       container.classList.add('results-container-visible');
@@ -322,23 +341,23 @@
                     <label>${displayDate}:</label> 
                     <div class="day-input-group">
                         <div class="day-input-wrapper">
-                            <input type="number" data-day="${i}" data-type="total">
+                            <input type="number" data-day="${i}" data-type="total" oninput="saveEntryData()">
                             <span class="mobile-label">Total KM</span>
                         </div>
                         <div class="day-input-wrapper">
-                            <input type="time" data-day="${i}" data-type="time-in">
+                            <input type="time" data-day="${i}" data-type="time-in" oninput="saveEntryData()">
                             <span class="mobile-label">Time-In</span>
                         </div>
                         <div class="day-input-wrapper">
-                            <input type="time" data-day="${i}" data-type="time-out">
+                            <input type="time" data-day="${i}" data-type="time-out" oninput="saveEntryData()">
                             <span class="mobile-label">Time-Out</span>
                         </div>
                         <div class="day-input-wrapper">
-                            <input type="number" data-day="${i}" data-type="fuel" min="0" placeholder="Ltrs">
+                            <input type="number" data-day="${i}" data-type="fuel" min="0" placeholder="Ltrs" oninput="saveEntryData()">
                             <span class="mobile-label">Fuel (L)</span>
                         </div>
                          <div class="day-input-wrapper">
-                            <input type="text" data-day="${i}" data-type="invoice" placeholder="Inv #">
+                            <input type="text" data-day="${i}" data-type="invoice" placeholder="Inv #" oninput="saveEntryData()">
                             <span class="mobile-label">Invoice #</span>
                         </div>
                     </div>
@@ -352,6 +371,45 @@
           fuel: div.querySelector('input[data-type="fuel"]'),
           invoice: div.querySelector('input[data-type="invoice"]')
         });
+      }
+
+      // If this was triggered by page load, fill the values
+      if (isInitialLoad) {
+        loadEntryData();
+      }
+    }
+
+    function saveEntryData() {
+      const data = entriesTotal.map(entry => ({
+        day: entry.day,
+        total: entry.total.value,
+        timeIn: entry.timeIn.value,
+        timeOut: entry.timeOut.value,
+        fuel: entry.fuel.value,
+        invoice: entry.invoice.value
+      }));
+      localStorage.setItem('logEntries', JSON.stringify(data));
+    }
+
+    function loadEntryData() {
+      const saved = localStorage.getItem('logEntries');
+      if (!saved) return;
+      const data = JSON.parse(saved);
+      data.forEach((item, index) => {
+        if (entriesTotal[index]) {
+          entriesTotal[index].total.value = item.total || '';
+          entriesTotal[index].timeIn.value = item.timeIn || '';
+          entriesTotal[index].timeOut.value = item.timeOut || '';
+          entriesTotal[index].fuel.value = item.fuel || '';
+          entriesTotal[index].invoice.value = item.invoice || '';
+        }
+      });
+    }
+
+    function clearStoredData() {
+      if (confirm("Are you sure you want to clear all saved data?")) {
+        localStorage.clear();
+        location.reload();
       }
     }
 
@@ -457,7 +515,7 @@
         r["Closing KM"], r["Total"], r["Time-in"], r["Time-out"], r["Fuel"], r["Invoice No"]
       ]);
 
-      const desired = [18, 22, 22, 22, 22, 12, 12, 12, 12, 18]; // Adjusting widths
+      const desired = [18, 22, 22, 22, 22, 12, 12, 12, 12, 18]; 
       const totalDesired = desired.reduce((a, b) => a + b, 0);
       const scale = (pageWidth - 20) / totalDesired;
       const columnStyles = {};
@@ -477,7 +535,7 @@
           lineWidth: 0.2,
         },
         headStyles: {
-          fillColor: [230, 230, 230], // light neutral gray
+          fillColor: [230, 230, 230],
           textColor: [0, 0, 0],
           lineColor: [0, 0, 0],
           lineWidth: 0.2,
@@ -518,7 +576,7 @@
           textColor: [0, 0, 0,],
         },
         headStyles: {
-          fillColor: [230, 230, 230], // light neutral gray
+          fillColor: [230, 230, 230],
           textColor: [0, 0, 0],
           lineColor: [0, 0, 0],
           lineWidth: 0.2,
