@@ -1,56 +1,74 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Personal Expense Tracker</title>
+    <!-- Tailwind CSS for clean, modern styling -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- jsPDF Library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
+
 <body class="bg-gray-50 text-gray-800 font-sans antialiased selection:bg-emerald-100">
 
     <div class="max-w-5xl mx-auto p-4 md:p-8 space-y-6">
+        <!-- Header -->
         <header class="text-center md:text-left pt-2">
             <h1 class="text-2xl md:text-3xl font-black text-gray-900 tracking-tight">🇮🇳 Expense Tracker</h1>
             <p class="text-gray-500 text-xs md:text-sm mt-1">Manage your budget securely via GitHub Pages.</p>
         </header>
 
+        <!-- Dashboard Grid -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+            <!-- Balance Card -->
             <div class="bg-white p-5 md:p-6 rounded-2xl shadow-xs border border-gray-100 flex flex-col justify-between">
                 <div>
                     <h2 class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Current Balance</h2>
-                    <p id="mainBalanceDisplay" class="text-3xl md:text-4xl font-black text-emerald-600 my-1 md:my-2">₹0.00</p>
+                    <p id="mainBalanceDisplay" class="text-3xl md:text-4xl font-black text-emerald-600 my-1 md:my-2">
+                        ₹0.00</p>
                 </div>
                 <div class="flex gap-2 mt-4">
-                    <button onclick="openModal('balanceModal')" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 px-4 rounded-xl transition text-sm cursor-pointer active:scale-[0.98]">
+                    <button onclick="openModal('balanceModal')"
+                        class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 px-4 rounded-xl transition text-sm cursor-pointer active:scale-[0.98]">
                         + Add Funds
                     </button>
-                    <button onclick="downloadPDF('balance')" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-3 px-4 rounded-xl transition text-sm cursor-pointer active:scale-[0.98]" title="Download Balance History">
+                    <button onclick="downloadPDF('balance')"
+                        class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-3 px-4 rounded-xl transition text-sm cursor-pointer active:scale-[0.98]"
+                        title="Download Balance History">
                         📥 PDF
                     </button>
                 </div>
             </div>
 
+            <!-- Total Expenses Card -->
             <div class="bg-white p-5 md:p-6 rounded-2xl shadow-xs border border-gray-100 flex flex-col justify-between">
                 <div>
                     <h2 class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Total Expenses</h2>
-                    <p id="totalExpensesDisplay" class="text-3xl md:text-4xl font-black text-rose-600 my-1 md:my-2">₹0.00</p>
+                    <p id="totalExpensesDisplay" class="text-3xl md:text-4xl font-black text-rose-600 my-1 md:my-2">
+                        ₹0.00</p>
                 </div>
-                <button onclick="downloadPDF('expenses')" class="w-full mt-4 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-3 px-4 rounded-xl transition text-sm cursor-pointer active:scale-[0.98]">
+                <button onclick="downloadPDF('expenses')"
+                    class="w-full mt-4 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-3 px-4 rounded-xl transition text-sm cursor-pointer active:scale-[0.98]">
                     📥 Download Expense Report (PDF)
                 </button>
             </div>
 
+            <!-- Quick Add Expense Form -->
             <div class="bg-white p-5 md:p-6 rounded-2xl shadow-xs border border-gray-100">
                 <h3 class="text-base md:text-lg font-bold text-gray-900 mb-3">Quick Add Expense</h3>
                 <form id="expenseForm" onsubmit="handleExpenseSubmit(event)" class="space-y-3">
                     <input type="hidden" id="expenseId">
                     <div>
-                        <input type="text" id="expenseDesc" placeholder="What did you buy?" required class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-emerald-500 bg-gray-50/50 focus:bg-white transition-all">
+                        <input type="text" id="expenseDesc" placeholder="What did you buy?" required
+                            class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-emerald-500 bg-gray-50/50 focus:bg-white transition-all">
                     </div>
                     <div class="grid grid-cols-2 gap-2">
-                        <input type="number" id="expenseAmount" placeholder="Amount (₹)" step="0.01" required class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-emerald-500 bg-gray-50/50 focus:bg-white transition-all">
-                        <select id="expenseCategory" class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm bg-gray-50/50 focus:bg-white focus:outline-emerald-500 transition-all">
+                        <input type="number" id="expenseAmount" placeholder="Amount (₹)" step="0.01" required
+                            class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-emerald-500 bg-gray-50/50 focus:bg-white transition-all">
+                        <select id="expenseCategory"
+                            class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm bg-gray-50/50 focus:bg-white focus:outline-emerald-500 transition-all">
                             <option value="Food">Food</option>
                             <option value="Bills">Bills</option>
                             <option value="Shopping">Shopping</option>
@@ -60,19 +78,50 @@
                     </div>
                     <div>
                         <label class="text-[11px] font-medium text-gray-400 block mb-1">Date & Time (Optional)</label>
-                        <input type="datetime-local" id="expenseDateTime" class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-emerald-500 bg-gray-50/50 focus:bg-white transition-all">
+                        <input type="datetime-local" id="expenseDateTime"
+                            class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-emerald-500 bg-gray-50/50 focus:bg-white transition-all">
                     </div>
-                    <button type="submit" id="expenseSubmitBtn" class="w-full bg-gray-900 hover:bg-gray-800 text-white font-semibold py-3 rounded-xl transition text-sm cursor-pointer active:scale-[0.98]">
+                    <button type="submit" id="expenseSubmitBtn"
+                        class="w-full bg-gray-900 hover:bg-gray-800 text-white font-semibold py-3 rounded-xl transition text-sm cursor-pointer active:scale-[0.98]">
                         Record Expense
                     </button>
                 </form>
             </div>
         </div>
 
+        <!-- NEW FEATURE: JSON Data Backup & Sharing Panel -->
+        <div
+            class="bg-amber-50/60 border border-amber-200/80 rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="text-center sm:text-left">
+                <h4 class="text-sm font-bold text-amber-900 flex items-center justify-center sm:justify-start gap-1.5">
+                    ⚙️ Data Backup & Easy Sharing
+                </h4>
+                <p class="text-amber-700/80 text-xs mt-0.5">Export your balance logs and expenses as a JSON file to
+                    share with others or transfer devices.</p>
+            </div>
+            <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+                <!-- Export Trigger -->
+                <button onclick="exportToJSON()"
+                    class="flex-1 sm:flex-initial bg-amber-600 hover:bg-amber-700 text-white font-semibold text-xs py-2.5 px-4 rounded-xl transition cursor-pointer active:scale-[0.98]">
+                    📤 Export JSON
+                </button>
+                <!-- Import Hidden input bridge -->
+                <label
+                    class="flex-1 sm:flex-initial text-center bg-white hover:bg-gray-50 border border-amber-300 text-amber-800 font-semibold text-xs py-2.5 px-4 rounded-xl transition cursor-pointer active:scale-[0.98]">
+                    📥 Import JSON
+                    <input type="file" id="jsonFileInput" accept="application/json, text/*"
+                        onchange="importFromJSON(event)" class="hidden">
+                </label>
+            </div>
+        </div>
+
+        <!-- History Content Block -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Expenses History List -->
             <div class="lg:col-span-2 bg-white p-5 md:p-6 rounded-2xl shadow-xs border border-gray-100">
                 <h3 class="text-lg font-bold text-gray-900 mb-4">Expense Transactions</h3>
-                
+
+                <!-- Desktop View -->
                 <div class="hidden md:block overflow-x-auto">
                     <table class="w-full text-left border-collapse">
                         <thead>
@@ -85,46 +134,62 @@
                             </tr>
                         </thead>
                         <tbody id="expenseTableBodyDesktop" class="divide-y divide-gray-50 text-sm">
-                            </tbody>
+                            <!-- Injected dynamically -->
+                        </tbody>
                     </table>
                 </div>
 
+                <!-- Mobile Responsive View -->
                 <div id="expenseCardsMobile" class="block md:hidden space-y-3">
-                    </div>
+                    <!-- Injected dynamically -->
+                </div>
             </div>
 
+            <!-- Balance Logs List -->
             <div class="bg-white p-5 md:p-6 rounded-2xl shadow-xs border border-gray-100">
                 <h3 class="text-lg font-bold text-gray-900 mb-4">Funding Logs</h3>
                 <div class="space-y-3 overflow-y-auto max-h-[400px] pr-1" id="balanceLogContainer">
-                    </div>
+                    <!-- Injected dynamically -->
+                </div>
             </div>
         </div>
     </div>
 
-    <div id="balanceModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 z-50">
+    <!-- Add Balance Modal -->
+    <div id="balanceModal"
+        class="hidden fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 z-50">
         <div class="bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl">
             <h3 class="text-lg font-bold mb-2 text-gray-900">Add Main Balance</h3>
             <form onsubmit="handleBalanceSubmit(event)" class="space-y-4">
                 <div>
-                    <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Amount (₹)</label>
-                    <input type="number" id="balanceAmount" step="0.01" required placeholder="0.00" class="w-full px-3 py-2.5 border border-gray-200 rounded-xl focus:outline-emerald-500 bg-gray-50">
+                    <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Amount
+                        (₹)</label>
+                    <input type="number" id="balanceAmount" step="0.01" required placeholder="0.00"
+                        class="w-full px-3 py-2.5 border border-gray-200 rounded-xl focus:outline-emerald-500 bg-gray-50">
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Note / Source</label>
-                    <input type="text" id="balanceNote" placeholder="e.g., Salary, Dividend" required class="w-full px-3 py-2.5 border border-gray-200 rounded-xl focus:outline-emerald-500 bg-gray-50">
+                    <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Note /
+                        Source</label>
+                    <input type="text" id="balanceNote" placeholder="e.g., Salary, Dividend" required
+                        class="w-full px-3 py-2.5 border border-gray-200 rounded-xl focus:outline-emerald-500 bg-gray-50">
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Date & Time (Optional)</label>
-                    <input type="datetime-local" id="balanceDateTime" class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-emerald-500 bg-gray-50">
+                    <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Date & Time
+                        (Optional)</label>
+                    <input type="datetime-local" id="balanceDateTime"
+                        class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-emerald-500 bg-gray-50">
                 </div>
                 <div class="flex justify-end gap-2 text-sm pt-2">
-                    <button type="button" onclick="closeModal('balanceModal')" class="px-4 py-3 text-gray-500 hover:bg-gray-100 rounded-xl transition font-medium cursor-pointer">Cancel</button>
-                    <button type="submit" class="px-5 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl transition cursor-pointer">Deposit</button>
+                    <button type="button" onclick="closeModal('balanceModal')"
+                        class="px-4 py-3 text-gray-500 hover:bg-gray-100 rounded-xl transition font-medium cursor-pointer">Cancel</button>
+                    <button type="submit"
+                        class="px-5 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl transition cursor-pointer">Deposit</button>
                 </div>
             </form>
         </div>
     </div>
 
+    <!-- App Logic Script -->
     <script>
         let state = {
             balanceLogs: JSON.parse(localStorage.getItem('tracker_balanceLogs')) || [],
@@ -144,7 +209,6 @@
         }
 
         function updateStorageAndUI() {
-            // Sort entries chronologically by date/time before saving so logs always look ordered
             state.balanceLogs.sort((a, b) => new Date(b.datetime) - new Date(a.datetime));
             state.expenses.sort((a, b) => new Date(b.datetime) - new Date(a.datetime));
 
@@ -161,13 +225,13 @@
 
         function render() {
             const calcs = calculateCalculations();
-            
+
             document.getElementById('mainBalanceDisplay').innerText = formatRupees(calcs.currentBalance);
             document.getElementById('totalExpensesDisplay').innerText = formatRupees(calcs.totalExpenses);
 
-            // 1. Render Desktop Table
+            // 1. Desktop Render
             const desktopBody = document.getElementById('expenseTableBodyDesktop');
-            desktopBody.innerHTML = state.expenses.length === 0 
+            desktopBody.innerHTML = state.expenses.length === 0
                 ? `<tr><td colspan="5" class="py-6 text-center text-gray-400 italic">No expense history recorded.</td></tr>`
                 : state.expenses.map(exp => `
                     <tr class="hover:bg-gray-50/50">
@@ -182,7 +246,7 @@
                     </tr>
                 `).join('');
 
-            // 2. Render Mobile Cards View
+            // 2. Mobile Render
             const mobileCardsContainer = document.getElementById('expenseCardsMobile');
             mobileCardsContainer.innerHTML = state.expenses.length === 0
                 ? `<p class="text-center text-gray-400 text-sm italic py-6">No expense history recorded.</p>`
@@ -205,7 +269,7 @@
                     </div>
                 `).join('');
 
-            // 3. Render Funding Logs
+            // 3. Balance Funding Log Render
             const balanceLogContainer = document.getElementById('balanceLogContainer');
             balanceLogContainer.innerHTML = state.balanceLogs.length === 0
                 ? `<p class="text-center text-gray-400 text-sm italic py-4">No funding logs recorded.</p>`
@@ -219,6 +283,50 @@
                         <button onclick="deleteBalanceLog('${log.id}')" class="text-gray-300 hover:text-rose-600 p-2 text-sm transition cursor-pointer" title="Delete record">✕</button>
                     </div>
                 `).join('');
+        }
+
+        // --- JSON Export and Import Mechanics ---
+        function exportToJSON() {
+            if (state.balanceLogs.length === 0 && state.expenses.length === 0) {
+                alert("Your expense tracker is completely empty! Add some items before exporting data.");
+                return;
+            }
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `expense-tracker-backup.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+        }
+
+        function importFromJSON(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                try {
+                    const parsedData = JSON.parse(e.target.result);
+
+                    // Validation verification structure step to make sure formatting aligns safely
+                    if (parsedData && Array.isArray(parsedData.balanceLogs) && Array.isArray(parsedData.expenses)) {
+                        if (confirm("Are you sure you want to load this data? This will append or replace your current browser memory tracking dataset.")) {
+                            state.balanceLogs = parsedData.balanceLogs;
+                            state.expenses = parsedData.expenses;
+                            updateStorageAndUI();
+                            alert("Data imported successfully!");
+                        }
+                    } else {
+                        alert("Invalid file format. Please upload a valid data backup file exported from this app.");
+                    }
+                } catch (err) {
+                    alert("Error parsing file. Ensure the file hasn't been modified manually.");
+                }
+                // clear file choice value so user can import same file multiple times if needed
+                document.getElementById('jsonFileInput').value = '';
+            };
+            reader.readAsText(file);
         }
 
         function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
@@ -291,7 +399,7 @@
             document.getElementById('expenseDesc').value = target.description;
             document.getElementById('expenseAmount').value = target.amount;
             document.getElementById('expenseCategory').value = target.category;
-            
+
             const localDate = new Date(target.datetime);
             localDate.setMinutes(localDate.getMinutes() - localDate.getTimezoneOffset());
             document.getElementById('expenseDateTime').value = localDate.toISOString().slice(0, 16);
@@ -301,14 +409,14 @@
         }
 
         function deleteExpense(id) {
-            if(confirm("Are you sure you want to delete this expense transaction?")) {
+            if (confirm("Are you sure you want to delete this expense transaction?")) {
                 state.expenses = state.expenses.filter(exp => exp.id !== id);
                 updateStorageAndUI();
             }
         }
 
         function deleteBalanceLog(id) {
-            if(confirm("Deleting a balance source entry will alter your calculation balance pool history. Continue?")) {
+            if (confirm("Deleting a balance source entry will alter your calculation balance pool history. Continue?")) {
                 state.balanceLogs = state.balanceLogs.filter(log => log.id !== id);
                 updateStorageAndUI();
             }
@@ -322,11 +430,11 @@
             doc.setFont("Helvetica", "bold");
             doc.setFontSize(20);
             doc.text("Personal Expense Tracker Report", 14, 20);
-            
+
             doc.setFontSize(10);
             doc.setFont("Helvetica", "normal");
             doc.text(`Generated On: ${new Date().toLocaleString()}`, 14, 28);
-            doc.text(`Active Net Balance Summary: Rs. ${calcs.currentBalance.toLocaleString('en-IN', {minimumFractionDigits: 2})}`, 14, 34);
+            doc.text(`Active Net Balance Summary: Rs. ${calcs.currentBalance.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`, 14, 34);
             doc.line(14, 38, 196, 38);
 
             let verticalOffset = 48;
@@ -335,7 +443,7 @@
                 doc.setFontSize(14);
                 doc.setFont("Helvetica", "bold");
                 doc.text("Main Balance Additions Log", 14, 45);
-                
+
                 doc.setFontSize(10);
                 doc.setFont("Helvetica", "bold");
                 doc.text("Date & Time", 14, 55);
@@ -345,19 +453,19 @@
 
                 doc.setFont("Helvetica", "normal");
                 verticalOffset = 64;
-                
+
                 state.balanceLogs.forEach(log => {
                     if (verticalOffset > 275) { doc.addPage(); verticalOffset = 20; }
                     doc.text(formatDateTime(log.datetime), 14, verticalOffset);
                     doc.text(log.note, 70, verticalOffset);
-                    doc.text(`+Rs. ${log.amount.toLocaleString('en-IN', {minimumFractionDigits: 2})}`, 160, verticalOffset);
+                    doc.text(`+Rs. ${log.amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`, 160, verticalOffset);
                     verticalOffset += 8;
                 });
             } else if (type === 'expenses') {
                 doc.setFontSize(14);
                 doc.setFont("Helvetica", "bold");
                 doc.text("Expense Transactions Log", 14, 45);
-                
+
                 doc.setFontSize(10);
                 doc.setFont("Helvetica", "bold");
                 doc.text("Date & Time", 14, 55);
@@ -374,21 +482,21 @@
                     doc.text(formatDateTime(exp.datetime), 14, verticalOffset);
                     doc.text(exp.category, 65, verticalOffset);
                     doc.text(exp.description.substring(0, 35), 100, verticalOffset);
-                    doc.text(`-Rs. ${exp.amount.toLocaleString('en-IN', {minimumFractionDigits: 2})}`, 175, verticalOffset);
+                    doc.text(`-Rs. ${exp.amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`, 175, verticalOffset);
                     verticalOffset += 8;
                 });
 
                 if (verticalOffset > 260) { doc.addPage(); verticalOffset = 20; }
                 doc.line(14, verticalOffset, 196, verticalOffset);
                 doc.setFont("Helvetica", "bold");
-                doc.text(`Total Accumulative Expenses: Rs. ${calcs.totalExpenses.toLocaleString('en-IN', {minimumFractionDigits: 2})}`, 115, verticalOffset + 10);
+                doc.text(`Total Accumulative Expenses: Rs. ${calcs.totalExpenses.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`, 115, verticalOffset + 10);
             }
 
             doc.save(`${type}-history-statement.pdf`);
         }
 
-        // Run UI generation on startup
         updateStorageAndUI();
     </script>
 </body>
+
 </html>
