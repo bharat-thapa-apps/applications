@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Expense Tracker</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans antialiased selection:bg-emerald-100">
+
+    <div class="max-w-5xl mx-auto p-4 md:p-8 space-y-6">
+        <header class="text-center md:text-left pt-2">
+            <h1 class="text-2xl md:text-3xl font-black text-gray-900 tracking-tight">🇮🇳 Expense Tracker</h1>
+            <p class="text-gray-500 text-xs md:text-sm mt-1">Manage your budget securely via GitHub Pages.</p>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+            <div class="bg-white p-5 md:p-6 rounded-2xl shadow-xs border border-gray-100 flex flex-col justify-between">
+                <div>
+                    <h2 class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Current Balance</h2>
+                    <p id="mainBalanceDisplay" class="text-3xl md:text-4xl font-black text-emerald-600 my-1 md:my-2">₹0.00</p>
+                </div>
+                <div class="flex gap-2 mt-4">
+                    <button onclick="openModal('balanceModal')" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 px-4 rounded-xl transition text-sm cursor-pointer active:scale-[0.98]">
+                        + Add Funds
+                    </button>
+                    <button onclick="downloadPDF('balance')" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-3 px-4 rounded-xl transition text-sm cursor-pointer active:scale-[0.98]" title="Download Balance History">
+                        📥 PDF
+                    </button>
+                </div>
+            </div>
+
+            <div class="bg-white p-5 md:p-6 rounded-2xl shadow-xs border border-gray-100 flex flex-col justify-between">
+                <div>
+                    <h2 class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Total Expenses</h2>
+                    <p id="totalExpensesDisplay" class="text-3xl md:text-4xl font-black text-rose-600 my-1 md:my-2">₹0.00</p>
+                </div>
+                <button onclick="downloadPDF('expenses')" class="w-full mt-4 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-3 px-4 rounded-xl transition text-sm cursor-pointer active:scale-[0.98]">
+                    📥 Download Expense Report (PDF)
+                </button>
+            </div>
+
+            <div class="bg-white p-5 md:p-6 rounded-2xl shadow-xs border border-gray-100">
+                <h3 class="text-base md:text-lg font-bold text-gray-900 mb-3">Quick Add Expense</h3>
+                <form id="expenseForm" onsubmit="handleExpenseSubmit(event)" class="space-y-3">
+                    <input type="hidden" id="expenseId">
+                    <div>
+                        <input type="text" id="expenseDesc" placeholder="What did you buy?" required class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-emerald-500 bg-gray-50/50 focus:bg-white transition-all">
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <input type="number" id="expenseAmount" placeholder="Amount (₹)" step="0.01" required class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-emerald-500 bg-gray-50/50 focus:bg-white transition-all">
+                        <select id="expenseCategory" class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm bg-gray-50/50 focus:bg-white focus:outline-emerald-500 transition-all">
+                            <option value="Food">Food</option>
+                            <option value="Bills">Bills</option>
+                            <option value="Shopping">Shopping</option>
+                            <option value="Entertainment">Entertainment</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-[11px] font-medium text-gray-400 block mb-1">Date & Time (Optional)</label>
+                        <input type="datetime-local" id="expenseDateTime" class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-emerald-500 bg-gray-50/50 focus:bg-white transition-all">
+                    </div>
+                    <button type="submit" id="expenseSubmitBtn" class="w-full bg-gray-900 hover:bg-gray-800 text-white font-semibold py-3 rounded-xl transition text-sm cursor-pointer active:scale-[0.98]">
+                        Record Expense
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="lg:col-span-2 bg-white p-5 md:p-6 rounded-2xl shadow-xs border border-gray-100">
+                <h3 class="text-lg font-bold text-gray-900 mb-4">Expense Transactions</h3>
+                
+                <div class="hidden md:block overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="border-b border-gray-100 text-gray-400 text-xs uppercase tracking-wider">
+                                <th class="pb-3 font-semibold">Details</th>
+                                <th class="pb-3 font-semibold">Category</th>
+                                <th class="pb-3 font-semibold">Date & Time</th>
+                                <th class="pb-3 font-semibold text-right">Amount</th>
+                                <th class="pb-3 font-semibold text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="expenseTableBodyDesktop" class="divide-y divide-gray-50 text-sm">
+                            </tbody>
+                    </table>
+                </div>
+
+                <div id="expenseCardsMobile" class="block md:hidden space-y-3">
+                    </div>
+            </div>
+
+            <div class="bg-white p-5 md:p-6 rounded-2xl shadow-xs border border-gray-100">
+                <h3 class="text-lg font-bold text-gray-900 mb-4">Funding Logs</h3>
+                <div class="space-y-3 overflow-y-auto max-h-[400px] pr-1" id="balanceLogContainer">
+                    </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="balanceModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl">
+            <h3 class="text-lg font-bold mb-2 text-gray-900">Add Main Balance</h3>
+            <form onsubmit="handleBalanceSubmit(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Amount (₹)</label>
+                    <input type="number" id="balanceAmount" step="0.01" required placeholder="0.00" class="w-full px-3 py-2.5 border border-gray-200 rounded-xl focus:outline-emerald-500 bg-gray-50">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Note / Source</label>
+                    <input type="text" id="balanceNote" placeholder="e.g., Salary, Dividend" required class="w-full px-3 py-2.5 border border-gray-200 rounded-xl focus:outline-emerald-500 bg-gray-50">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Date & Time (Optional)</label>
+                    <input type="datetime-local" id="balanceDateTime" class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-emerald-500 bg-gray-50">
+                </div>
+                <div class="flex justify-end gap-2 text-sm pt-2">
+                    <button type="button" onclick="closeModal('balanceModal')" class="px-4 py-3 text-gray-500 hover:bg-gray-100 rounded-xl transition font-medium cursor-pointer">Cancel</button>
+                    <button type="submit" class="px-5 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl transition cursor-pointer">Deposit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let state = {
+            balanceLogs: JSON.parse(localStorage.getItem('tracker_balanceLogs')) || [],
+            expenses: JSON.parse(localStorage.getItem('tracker_expenses')) || []
+        };
+
+        const formatRupees = (num) => {
+            return '₹' + num.toLocaleString('en-IN', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+        };
+
+        function formatDateTime(dateTimeStr) {
+            const date = dateTimeStr ? new Date(dateTimeStr) : new Date();
+            return date.toLocaleString([], { year: 'numeric', month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+        }
+
+        function updateStorageAndUI() {
+            // Sort entries chronologically by date/time before saving so logs always look ordered
+            state.balanceLogs.sort((a, b) => new Date(b.datetime) - new Date(a.datetime));
+            state.expenses.sort((a, b) => new Date(b.datetime) - new Date(a.datetime));
+
+            localStorage.setItem('tracker_balanceLogs', JSON.stringify(state.balanceLogs));
+            localStorage.setItem('tracker_expenses', JSON.stringify(state.expenses));
+            render();
+        }
+
+        function calculateCalculations() {
+            const totalDeposits = state.balanceLogs.reduce((acc, curr) => acc + curr.amount, 0);
+            const totalExpenses = state.expenses.reduce((acc, curr) => acc + curr.amount, 0);
+            return { currentBalance: totalDeposits - totalExpenses, totalExpenses };
+        }
+
+        function render() {
+            const calcs = calculateCalculations();
+            
+            document.getElementById('mainBalanceDisplay').innerText = formatRupees(calcs.currentBalance);
+            document.getElementById('totalExpensesDisplay').innerText = formatRupees(calcs.totalExpenses);
+
+            // 1. Render Desktop Table
+            const desktopBody = document.getElementById('expenseTableBodyDesktop');
+            desktopBody.innerHTML = state.expenses.length === 0 
+                ? `<tr><td colspan="5" class="py-6 text-center text-gray-400 italic">No expense history recorded.</td></tr>`
+                : state.expenses.map(exp => `
+                    <tr class="hover:bg-gray-50/50">
+                        <td class="py-3.5 font-semibold text-gray-900">${exp.description}</td>
+                        <td class="py-3.5"><span class="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-md font-medium">${exp.category}</span></td>
+                        <td class="py-3.5 text-gray-500 text-xs">${formatDateTime(exp.datetime)}</td>
+                        <td class="py-3.5 text-right text-rose-600 font-bold">-${formatRupees(exp.amount)}</td>
+                        <td class="py-3.5 text-right text-xs">
+                            <button onclick="editExpense('${exp.id}')" class="text-blue-600 hover:text-blue-800 mr-3 font-semibold cursor-pointer">Edit</button>
+                            <button onclick="deleteExpense('${exp.id}')" class="text-rose-600 hover:text-rose-800 font-semibold cursor-pointer">Delete</button>
+                        </td>
+                    </tr>
+                `).join('');
+
+            // 2. Render Mobile Cards View
+            const mobileCardsContainer = document.getElementById('expenseCardsMobile');
+            mobileCardsContainer.innerHTML = state.expenses.length === 0
+                ? `<p class="text-center text-gray-400 text-sm italic py-6">No expense history recorded.</p>`
+                : state.expenses.map(exp => `
+                    <div class="bg-gray-50 p-4 rounded-xl border border-gray-150 flex flex-col justify-between space-y-3">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h4 class="font-bold text-gray-900 text-base">${exp.description}</h4>
+                                <span class="inline-block bg-white text-gray-600 text-[11px] font-medium px-2 py-0.5 rounded border border-gray-200 mt-1">${exp.category}</span>
+                            </div>
+                            <span class="text-rose-600 font-black text-base">-${formatRupees(exp.amount)}</span>
+                        </div>
+                        <div class="flex justify-between items-center pt-2 border-t border-gray-200/60 text-xs">
+                            <span class="text-gray-400 text-[11px]">${formatDateTime(exp.datetime)}</span>
+                            <div class="space-x-3">
+                                <button onclick="editExpense('${exp.id}')" class="text-blue-600 font-bold py-1 px-2 cursor-pointer active:bg-blue-50 rounded">Edit</button>
+                                <button onclick="deleteExpense('${exp.id}')" class="text-rose-600 font-bold py-1 px-2 cursor-pointer active:bg-rose-50 rounded">Delete</button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+
+            // 3. Render Funding Logs
+            const balanceLogContainer = document.getElementById('balanceLogContainer');
+            balanceLogContainer.innerHTML = state.balanceLogs.length === 0
+                ? `<p class="text-center text-gray-400 text-sm italic py-4">No funding logs recorded.</p>`
+                : state.balanceLogs.map(log => `
+                    <div class="p-3.5 bg-gray-50 rounded-xl border border-gray-100 flex justify-between items-center">
+                        <div class="space-y-0.5">
+                            <p class="font-bold text-emerald-700 text-sm">+ ${formatRupees(log.amount)}</p>
+                            <p class="text-xs font-medium text-gray-700">${log.note}</p>
+                            <p class="text-[10px] text-gray-400">${formatDateTime(log.datetime)}</p>
+                        </div>
+                        <button onclick="deleteBalanceLog('${log.id}')" class="text-gray-300 hover:text-rose-600 p-2 text-sm transition cursor-pointer" title="Delete record">✕</button>
+                    </div>
+                `).join('');
+        }
+
+        function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+        function handleBalanceSubmit(e) {
+            e.preventDefault();
+            const amountInput = document.getElementById('balanceAmount');
+            const noteInput = document.getElementById('balanceNote');
+            const dateInput = document.getElementById('balanceDateTime');
+
+            const timestamp = dateInput.value ? new Date(dateInput.value).toISOString() : new Date().toISOString();
+
+            state.balanceLogs.push({
+                id: 'bal_' + Date.now(),
+                amount: parseFloat(amountInput.value),
+                note: noteInput.value.trim(),
+                datetime: timestamp
+            });
+
+            updateStorageAndUI();
+            amountInput.value = '';
+            noteInput.value = '';
+            dateInput.value = '';
+            closeModal('balanceModal');
+        }
+
+        function handleExpenseSubmit(e) {
+            e.preventDefault();
+            const idField = document.getElementById('expenseId').value;
+            const descInput = document.getElementById('expenseDesc');
+            const amountInput = document.getElementById('expenseAmount');
+            const categoryInput = document.getElementById('expenseCategory');
+            const dateInput = document.getElementById('expenseDateTime');
+
+            const timestamp = dateInput.value ? new Date(dateInput.value).toISOString() : new Date().toISOString();
+
+            if (idField) {
+                const index = state.expenses.findIndex(exp => exp.id === idField);
+                if (index !== -1) {
+                    state.expenses[index] = {
+                        ...state.expenses[index],
+                        description: descInput.value.trim(),
+                        amount: parseFloat(amountInput.value),
+                        category: categoryInput.value,
+                        datetime: timestamp
+                    };
+                }
+                document.getElementById('expenseSubmitBtn').innerText = 'Record Expense';
+                document.getElementById('expenseId').value = '';
+            } else {
+                state.expenses.unshift({
+                    id: 'exp_' + Date.now(),
+                    description: descInput.value.trim(),
+                    amount: parseFloat(amountInput.value),
+                    category: categoryInput.value,
+                    datetime: timestamp
+                });
+            }
+
+            updateStorageAndUI();
+            document.getElementById('expenseForm').reset();
+        }
+
+        function editExpense(id) {
+            const target = state.expenses.find(exp => exp.id === id);
+            if (!target) return;
+
+            document.getElementById('expenseId').value = target.id;
+            document.getElementById('expenseDesc').value = target.description;
+            document.getElementById('expenseAmount').value = target.amount;
+            document.getElementById('expenseCategory').value = target.category;
+            
+            const localDate = new Date(target.datetime);
+            localDate.setMinutes(localDate.getMinutes() - localDate.getTimezoneOffset());
+            document.getElementById('expenseDateTime').value = localDate.toISOString().slice(0, 16);
+
+            document.getElementById('expenseSubmitBtn').innerText = 'Update Expense';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function deleteExpense(id) {
+            if(confirm("Are you sure you want to delete this expense transaction?")) {
+                state.expenses = state.expenses.filter(exp => exp.id !== id);
+                updateStorageAndUI();
+            }
+        }
+
+        function deleteBalanceLog(id) {
+            if(confirm("Deleting a balance source entry will alter your calculation balance pool history. Continue?")) {
+                state.balanceLogs = state.balanceLogs.filter(log => log.id !== id);
+                updateStorageAndUI();
+            }
+        }
+
+        function downloadPDF(type) {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            const calcs = calculateCalculations();
+
+            doc.setFont("Helvetica", "bold");
+            doc.setFontSize(20);
+            doc.text("Personal Expense Tracker Report", 14, 20);
+            
+            doc.setFontSize(10);
+            doc.setFont("Helvetica", "normal");
+            doc.text(`Generated On: ${new Date().toLocaleString()}`, 14, 28);
+            doc.text(`Active Net Balance Summary: Rs. ${calcs.currentBalance.toLocaleString('en-IN', {minimumFractionDigits: 2})}`, 14, 34);
+            doc.line(14, 38, 196, 38);
+
+            let verticalOffset = 48;
+
+            if (type === 'balance') {
+                doc.setFontSize(14);
+                doc.setFont("Helvetica", "bold");
+                doc.text("Main Balance Additions Log", 14, 45);
+                
+                doc.setFontSize(10);
+                doc.setFont("Helvetica", "bold");
+                doc.text("Date & Time", 14, 55);
+                doc.text("Source/Note", 70, 55);
+                doc.text("Amount (Rs.)", 160, 55);
+                doc.line(14, 57, 196, 57);
+
+                doc.setFont("Helvetica", "normal");
+                verticalOffset = 64;
+                
+                state.balanceLogs.forEach(log => {
+                    if (verticalOffset > 275) { doc.addPage(); verticalOffset = 20; }
+                    doc.text(formatDateTime(log.datetime), 14, verticalOffset);
+                    doc.text(log.note, 70, verticalOffset);
+                    doc.text(`+Rs. ${log.amount.toLocaleString('en-IN', {minimumFractionDigits: 2})}`, 160, verticalOffset);
+                    verticalOffset += 8;
+                });
+            } else if (type === 'expenses') {
+                doc.setFontSize(14);
+                doc.setFont("Helvetica", "bold");
+                doc.text("Expense Transactions Log", 14, 45);
+                
+                doc.setFontSize(10);
+                doc.setFont("Helvetica", "bold");
+                doc.text("Date & Time", 14, 55);
+                doc.text("Category", 65, 55);
+                doc.text("Description", 100, 55);
+                doc.text("Cost (Rs.)", 175, 55);
+                doc.line(14, 57, 196, 57);
+
+                doc.setFont("Helvetica", "normal");
+                verticalOffset = 64;
+
+                state.expenses.forEach(exp => {
+                    if (verticalOffset > 275) { doc.addPage(); verticalOffset = 20; }
+                    doc.text(formatDateTime(exp.datetime), 14, verticalOffset);
+                    doc.text(exp.category, 65, verticalOffset);
+                    doc.text(exp.description.substring(0, 35), 100, verticalOffset);
+                    doc.text(`-Rs. ${exp.amount.toLocaleString('en-IN', {minimumFractionDigits: 2})}`, 175, verticalOffset);
+                    verticalOffset += 8;
+                });
+
+                if (verticalOffset > 260) { doc.addPage(); verticalOffset = 20; }
+                doc.line(14, verticalOffset, 196, verticalOffset);
+                doc.setFont("Helvetica", "bold");
+                doc.text(`Total Accumulative Expenses: Rs. ${calcs.totalExpenses.toLocaleString('en-IN', {minimumFractionDigits: 2})}`, 115, verticalOffset + 10);
+            }
+
+            doc.save(`${type}-history-statement.pdf`);
+        }
+
+        // Run UI generation on startup
+        updateStorageAndUI();
+    </script>
+</body>
+</html>
