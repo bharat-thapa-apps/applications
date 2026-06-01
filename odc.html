@@ -5,7 +5,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Hotel Manifest PDF Generator</title>
-  <!-- Include jsPDF and jsPDF-AutoTable Libraries via CDN -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 
@@ -48,13 +47,15 @@
     input[type="text"],
     input[type="date"],
     input[type="time"],
-    input[type="number"] {
+    input[type="number"],
+    select {
       width: 100%;
       padding: 10px;
       box-sizing: border-box;
       border: 1px solid #ccc;
       border-radius: 4px;
       font-size: 14px;
+      background-color: #fff;
     }
 
     button {
@@ -73,11 +74,20 @@
       background-color: #2980b9;
     }
 
+    /* Dynamic Grid Layouts depending on selected type */
     .student-row {
       display: grid;
-      grid-template-columns: 2fr 2fr 2fr;
       gap: 10px;
       margin-bottom: 10px;
+      align-items: center;
+    }
+
+    .manifest-transport {
+      grid-template-columns: 2fr 2fr 2fr;
+    }
+
+    .manifest-payment {
+      grid-template-columns: 1fr;
     }
 
     #studentInputsSection {
@@ -94,6 +104,13 @@
     <h2>Hotel Manifest Generator</h2>
 
     <div id="setupForm">
+      <div class="form-group">
+        <label for="manifestType">Manifest Type</label>
+        <select id="manifestType" onchange="resetStudentSection()">
+          <option value="transport">Full Info (Name, Contact, Drop Point)</option>
+          <option value="payment">Payment Receiving List (Name & Signature Space)</option>
+        </select>
+      </div>
       <div class="form-group">
         <label for="hotelName">Hotel Name</label>
         <input type="text" id="hotelName" placeholder="e.g. Grand Plaza Hotel">
@@ -119,37 +136,66 @@
 
     <div id="studentInputsSection" style="display: none;">
       <h3>Student Details</h3>
-      <div class="student-row" style="font-weight: bold; margin-bottom: 5px;">
-        <div>Student Name</div>
-        <div>Contact</div>
-        <div>Dropping Point</div>
-      </div>
+      <div id="tableHeader" class="student-row" style="font-weight: bold; margin-bottom: 5px;">
+        </div>
       <div id="dynamicRowsContainer"></div>
       <br>
-      <button type="button" onclick="generateLibraryPDF()" style="background-color: #e67e22;">Download Clean
-        PDF</button>
+      <button type="button" onclick="generateLibraryPDF()" style="background-color: #e67e22;">Download Clean PDF</button>
     </div>
   </div>
 
   <script>
+    function resetStudentSection() {
+      document.getElementById('studentInputsSection').style.display = 'none';
+      document.getElementById('dynamicRowsContainer').innerHTML = '';
+    }
+
     function generateStudentFields() {
       const count = parseInt(document.getElementById('totalStudents').value);
+      const type = document.getElementById('manifestType').value;
+      
       if (!count || count < 1) {
         alert('Please enter a valid number of students.');
         return;
       }
 
+      const headerContainer = document.getElementById('tableHeader');
       const container = document.getElementById('dynamicRowsContainer');
+      
       container.innerHTML = '';
+      headerContainer.className = `student-row manifest-${type}`;
 
+      // Build Headers dynamically
+      if (type === 'transport') {
+        headerContainer.style.textAlign = 'center';
+        headerContainer.innerHTML = `
+          <div>Student Name</div>
+          <div>Contact</div>
+          <div>Dropping Point</div>
+        `;
+      } else {
+        headerContainer.style.textAlign = 'left';
+        headerContainer.innerHTML = `
+          <div style="padding-left: 5px;">Student Name</div>
+        `;
+      }
+
+      // Build input fields rows dynamically
       for (let i = 0; i < count; i++) {
         const row = document.createElement('div');
-        row.className = 'student-row';
-        row.innerHTML = `
-                <input type="text" class="stud-name" placeholder="Name ${i + 1}" required>
-                <input type="text" class="stud-contact" placeholder="Contact ${i + 1}" required>
-                <input type="text" class="stud-dropping" placeholder="Dropping Point" required>
-            `;
+        row.className = `student-row manifest-${type}`;
+        
+        if (type === 'transport') {
+          row.innerHTML = `
+            <input type="text" class="stud-name" placeholder="Name ${i + 1}" required>
+            <input type="text" class="stud-contact" placeholder="Contact ${i + 1}" required>
+            <input type="text" class="stud-dropping" placeholder="Dropping Point" required>
+          `;
+        } else {
+          row.innerHTML = `
+            <input type="text" class="stud-name" placeholder="Name ${i + 1}" required>
+          `;
+        }
         container.appendChild(row);
       }
 
@@ -164,62 +210,83 @@
         format: 'a4'
       });
 
-      // Fetch inputs
+      const type = document.getElementById('manifestType').value;
       const hotelName = (document.getElementById('hotelName').value || 'N/A').toUpperCase();
       const rawDate = document.getElementById('date').value;
       const time = document.getElementById('time').value || 'N/A';
       const rawStipend = document.getElementById('stipend').value || '0';
       const stipend = Number(rawStipend);
 
-      // Format Date into pure DDMMYYYY structure
       let formattedDate = 'N/A';
       if (rawDate) {
-        const dateParts = rawDate.split('-'); // input[type="date"] yields YYYY-MM-DD
+        const dateParts = rawDate.split('-');
         if (dateParts.length === 3) {
-          const year = dateParts[0];
-          const month = dateParts[1];
-          const day = dateParts[2];
-          formattedDate = `${day}-${month}-${year}`; // Combines strictly to DDMMYYYY
+          formattedDate = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`;
         }
       }
 
-      // Append Rupees text prefix safely
-
-      // Header Formatting
+      // Main Header Title
       doc.setFont("Helvetica", "Bold");
       doc.setFontSize(22);
       doc.text(hotelName, 105, 20, { align: "center" });
 
-      doc.setFont("Helvetica", "Normal");
-      doc.setFontSize(12);
-      doc.text(`Date: ${formattedDate}`, 105, 28, { align: "center" });
-      doc.text(`Time: ${time}`, 105, 35, { align: "center" });
-      doc.text(`Stipend: Rs.${stipend}`, 105, 42, { align: "center" });
+      // Conditionally inject "PAYMENT RECEIVING LIST" subtitle if selected
+      let startYTable = 60;
+      if (type === 'payment') {
+        doc.setFontSize(14);
+        doc.text("PAYMENT LIST", 105, 28, { align: "center" });
+        
+        doc.setFont("Helvetica", "Normal");
+        doc.setFontSize(11);
+        doc.text(`Date: ${formattedDate}`, 105, 36, { align: "center" });
+        doc.text(`Time: ${time}`, 105, 42, { align: "center" });
+        doc.text(`Stipend: Rs.${stipend}`, 105, 48, { align: "center" });
+        startYTable = 55; // Adjust placement slightly down for structural symmetry
+      } else {
+        doc.setFont("Helvetica", "Normal");
+        doc.setFontSize(11);
+        doc.text(`Date: ${formattedDate}`, 105, 28, { align: "center" });
+        doc.text(`Time: ${time}`, 105, 34, { align: "center" });
+        doc.text(`Stipend: Rs.${stipend}`, 105, 40, { align: "center" });
+        startYTable = 48;
+      }
 
-      // Map inputs to data matrix structure
+      // Gather Form Data
       const names = document.querySelectorAll('.stud-name');
-      const contacts = document.querySelectorAll('.stud-contact');
-      const droppings = document.querySelectorAll('.stud-dropping');
-
       const tableBodyData = [];
-      names.forEach((nameInput, index) => {
-        tableBodyData.push([
-          nameInput.value || '',
-          contacts[index].value || '',
-          droppings[index].value || ''
-        ]);
-      });
+      let tableHeaders = [];
 
-      // Minimal Table Construction (Plain lines, no colored themes)
-      doc.autoTable({
-        startY: 60,
-        head: [['NAME', 'Contact', 'Dropping']],
+      if (type === 'transport') {
+        tableHeaders = [['NAME', 'CONTACT', 'DROPPING']];
+        const contacts = document.querySelectorAll('.stud-contact');
+        const droppings = document.querySelectorAll('.stud-dropping');
+
+        names.forEach((nameInput, index) => {
+          tableBodyData.push([
+            nameInput.value || '',
+            contacts[index].value || '',
+            droppings[index].value || ''
+          ]);
+        });
+      } else {
+        tableHeaders = [['STUDENT NAME', 'SIGNATURE / REMARKS']];
+        names.forEach((nameInput) => {
+          tableBodyData.push([
+            nameInput.value || '',
+            '' // Leaves clean canvas for physical confirmation
+          ]);
+        });
+      }
+
+      // Base Structural Setup Engine
+      const autoTableOptions = {
+        startY: startYTable,
+        head: tableHeaders,
         body: tableBodyData,
         theme: 'plain',
         styles: {
           font: 'Helvetica',
           fontSize: 10,
-          cellPadding: 1,
           lineColor: [50, 50, 50],
           lineWidth: 0.2,
           halign: 'center'
@@ -231,9 +298,24 @@
           fontSize: 10.5,
         },
         margin: { top: 20, left: 15, right: 15 }
-      });
+      };
 
-      doc.save(`${hotelName.replace(/\s+/g, '_') + '_' + formattedDate}.pdf`);
+      // Configuration for spacing and proportions
+      if (type === 'payment') {
+        autoTableOptions.styles.cellPadding = 2; // Deep cell size for handwriting support
+        autoTableOptions.columnStyles = {
+          0: { halign: 'center', cellWidth: 80 }, 
+          1: { cellWidth: 100 } 
+        };
+      } else {
+        autoTableOptions.styles.cellPadding = 1;
+        autoTableOptions.columnStyles = {};
+      }
+
+      doc.autoTable(autoTableOptions);
+
+      const fileTypeSuffix = type === 'payment' ? 'Payment_Receiving_List' : 'Dropping_Manifest';
+      doc.save(`${hotelName.replace(/\s+/g, '_')}_${fileTypeSuffix}_${formattedDate}.pdf`);
     }
   </script>
 
