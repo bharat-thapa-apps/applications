@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hotel Manifest PDF Generator</title>
+  <title>Hotel Manifest PDF Generator & Database Manager</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 
@@ -14,16 +14,28 @@
       background-color: #f4f7f6;
       color: #333;
       margin: 0;
-      padding: 40px 20px;
+      padding: 20px 10px;
+    }
+
+    @media (min-width: 600px) {
+      body {
+        padding: 40px 20px;
+      }
     }
 
     .container {
-      max-width: 700px;
+      max-width: 800px;
       margin: 0 auto;
       background: #fff;
-      padding: 30px;
+      padding: 20px;
       border-radius: 8px;
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    }
+
+    @media (min-width: 600px) {
+      .container {
+        padding: 30px;
+      }
     }
 
     h2 {
@@ -31,10 +43,66 @@
       color: #2c3e50;
       border-bottom: 2px solid #ecf0f1;
       padding-bottom: 10px;
+      font-size: 24px;
+    }
+
+    /* Tabs Styling */
+    .tabs {
+      display: flex;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #ecf0f1;
+    }
+
+    .tab-btn {
+      flex: 1;
+      text-align: center;
+      padding: 12px 10px;
+      background: none;
+      border: none;
+      font-size: 15px;
+      font-weight: bold;
+      color: #7f8c8d;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    @media (min-width: 600px) {
+      .tab-btn {
+        flex: none;
+        padding: 10px 20px;
+        font-size: 16px;
+      }
+    }
+
+    .tab-btn.active {
+      color: #3498db;
+      border-bottom: 3px solid #3498db;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
     }
 
     .form-group {
       margin-bottom: 15px;
+    }
+
+    .form-row-inline {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+
+    @media (min-width: 600px) {
+      .form-row-inline {
+        display: grid;
+        grid-template-columns: 2fr 2fr 2fr 1fr;
+      }
     }
 
     label {
@@ -50,7 +118,7 @@
     input[type="number"],
     select {
       width: 100%;
-      padding: 10px;
+      padding: 12px 10px;
       box-sizing: border-box;
       border: 1px solid #ccc;
       border-radius: 4px;
@@ -74,20 +142,45 @@
       background-color: #2980b9;
     }
 
-    /* Dynamic Grid Layouts depending on selected type */
+    .btn-success {
+      background-color: #2ecc71;
+    }
+
+    .btn-success:hover {
+      background-color: #27ae60;
+    }
+
+    .btn-danger {
+      background-color: #e74c3c;
+    }
+
+    .btn-danger:hover {
+      background-color: #c0392b;
+    }
+
+    .btn-secondary {
+      background-color: #95a5a6;
+    }
+
+    .btn-secondary:hover {
+      background-color: #7f8c8d;
+    }
+
+    /* Dynamic Grid Layouts */
     .student-row {
       display: grid;
-      gap: 10px;
-      margin-bottom: 10px;
+      gap: 8px;
+      margin-bottom: 12px;
       align-items: center;
+      position: relative;
     }
 
     .manifest-transport {
-      grid-template-columns: 2fr 2fr 2fr;
+      grid-template-columns: 3fr 2.5fr 2.5fr auto;
     }
 
     .manifest-payment {
-      grid-template-columns: 1fr;
+      grid-template-columns: 9fr auto;
     }
 
     #studentInputsSection {
@@ -95,65 +188,397 @@
       padding-top: 25px;
       border-top: 2px solid #ecf0f1;
     }
+
+    .autocomplete-wrapper {
+      position: relative;
+    }
+
+    /* Mobile Responsive Tables (Transforms rows to cards) */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+
+    table,
+    th,
+    td {
+      border: 1px solid #bdc3c7;
+    }
+
+    th,
+    td {
+      padding: 12px 10px;
+      text-align: left;
+    }
+
+    th {
+      background-color: #ecf0f1;
+    }
+
+    @media screen and (max-width: 600px) {
+
+      /* Hide regular table headers on mobile */
+      table,
+      thead,
+      tbody,
+      th,
+      td,
+      tr {
+        display: block;
+      }
+
+      thead tr {
+        position: absolute;
+        top: -9999px;
+        left: -9999px;
+      }
+
+      tr {
+        background: #fff;
+        border: 1px solid #dcdde1;
+        border-radius: 6px;
+        margin-bottom: 15px;
+        padding: 10px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.03);
+      }
+
+      td {
+        border: none;
+        border-bottom: 1px solid #f5f6fa;
+        position: relative;
+        padding-left: 40%;
+        text-align: right;
+        font-size: 14px;
+      }
+
+      td:last-child {
+        border-bottom: none;
+        padding-left: 0;
+        text-align: center;
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+        margin-top: 8px;
+      }
+
+      /* Label injection for mobile responsive card view */
+      td:before {
+        position: absolute;
+        top: 12px;
+        left: 10px;
+        width: 35%;
+        padding-right: 10px;
+        white-space: nowrap;
+        text-align: left;
+        font-weight: bold;
+        color: #7f8c8d;
+      }
+
+      td:nth-of-type(1):before {
+        content: "Name";
+      }
+
+      td:nth-of-type(2):before {
+        content: "Contact";
+      }
+
+      td:nth-of-type(3):before {
+        content: "Drop Point";
+      }
+    }
   </style>
 </head>
 
 <body>
 
   <div class="container">
-    <h2>Hotel Manifest Generator</h2>
+    <h2>Hotel Manifest Center</h2>
 
-    <div id="setupForm">
-      <div class="form-group">
-        <label for="manifestType">Manifest Type</label>
-        <select id="manifestType" onchange="resetStudentSection()">
-          <option value="transport">Full Info (Name, Contact, Drop Point)</option>
-          <option value="payment">Payment Receiving List (Name & Signature Space)</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label for="hotelName">Hotel Name</label>
-        <input type="text" id="hotelName" placeholder="e.g. Grand Plaza Hotel">
-      </div>
-      <div class="form-group">
-        <label for="date">Date</label>
-        <input type="date" id="date">
-      </div>
-      <div class="form-group">
-        <label for="time">Time</label>
-        <input type="time" id="time">
-      </div>
-      <div class="form-group">
-        <label for="stipend">Stipend Amount (In Numbers)</label>
-        <input type="text" id="stipend" placeholder="e.g. 1500">
-      </div>
-      <div class="form-group">
-        <label for="totalStudents">Total Students</label>
-        <input type="number" id="totalStudents" min="1" placeholder="Enter number of students">
-      </div>
-      <button type="button" onclick="generateStudentFields()">Generate Student Rows</button>
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('generator')">Generator</button>
+      <button class="tab-btn" onclick="switchTab('database'); renderDatabaseTable();">Manage Student DB</button>
     </div>
 
-    <div id="studentInputsSection" style="display: none;">
-      <h3>Student Details</h3>
-      <div id="tableHeader" class="student-row" style="font-weight: bold; margin-bottom: 5px;">
+    <div id="generatorTab" class="tab-content active">
+      <div id="setupForm">
+        <div class="form-group">
+          <label for="manifestType">Manifest Type</label>
+          <select id="manifestType" onchange="resetStudentSection()">
+            <option value="transport">Full Info (Name, Contact, Drop Point)</option>
+            <option value="payment">Payment Receiving List (Name & Signature Space)</option>
+          </select>
         </div>
-      <div id="dynamicRowsContainer"></div>
-      <br>
-      <button type="button" onclick="generateLibraryPDF()" style="background-color: #e67e22;">Download Clean PDF</button>
+        <div class="form-group">
+          <label for="hotelName">Hotel Name</label>
+          <input type="text" id="hotelName" placeholder="e.g. Grand Plaza Hotel">
+        </div>
+        <div class="form-group">
+          <label for="date">Date</label>
+          <input type="date" id="date">
+        </div>
+        <div class="form-group">
+          <label for="time">Time</label>
+          <input type="time" id="time">
+        </div>
+        <div class="form-group">
+          <label for="stipend">Stipend Amount (In Numbers)</label>
+          <input type="text" id="stipend" placeholder="e.g. 1500">
+        </div>
+        <div class="form-group">
+          <label for="totalStudents">Total Students</label>
+          <input type="number" id="totalStudents" min="1" placeholder="Enter initial number of students">
+        </div>
+        <button type="button" onclick="generateStudentFields()" style="width: 100%;">Generate Student Rows</button>
+      </div>
+
+      <div id="studentInputsSection" style="display: none;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+          <h3 style="margin: 0;">Student Details</h3>
+          <button type="button" class="btn-success" onclick="addNewRow()" style="padding: 8px 12px; font-size: 13px;">+
+            Add New Row</button>
+        </div>
+        <p style="color: #7f8c8d; font-size: 12px; margin-top: 0; margin-bottom: 15px;">* Fill out fields. When you
+          click download below, your visible rows automatically sync to your saved directory.</p>
+        <div id="tableHeader" class="student-row" style="font-weight: bold; margin-bottom: 5px;"></div>
+        <div id="dynamicRowsContainer"></div>
+        <br>
+        <button type="button" onclick="generateLibraryPDF()" style="background-color: #e67e22; width: 100%;">Download
+          Clean PDF</button>
+      </div>
+    </div>
+
+    <div id="databaseTab" class="tab-content">
+      <h3>Add / Edit Student Profile</h3>
+      <div class="form-row-inline">
+        <input type="text" id="dbName" placeholder="Student Name">
+        <input type="text" id="dbContact" placeholder="Contact">
+        <input type="text" id="dbDrop" placeholder="Drop Point">
+        <button type="button" class="btn-success" onclick="addProfileFromUI()">Save</button>
+      </div>
+
+      <div class="form-group" style="margin-top: 20px; display: flex; flex-wrap: wrap; gap: 10px;">
+        <button type="button" class="btn-secondary" style="flex: 1; font-size: 13px; padding: 10px;"
+          onclick="exportDatabaseJSON()">Export Backup</button>
+        <button type="button" class="btn-secondary" style="flex: 1; font-size: 13px; padding: 10px;"
+          onclick="document.getElementById('importFile').click()">Import Backup</button>
+        <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importDatabaseJSON(event)">
+      </div>
+
+      <h3>Saved Directory Profiles</h3>
+      <div>
+        <table id="dbTable">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Contact</th>
+              <th>Drop Point</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
     </div>
   </div>
 
+  <datalist id="studentsDataset"></datalist>
+
   <script>
+    let studentDB = JSON.parse(localStorage.getItem('studentDB')) || [];
+
+    window.onload = function () {
+      updateGlobalDatalist();
+    };
+
+    function switchTab(tabName) {
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+      if (tabName === 'generator') {
+        document.querySelector("[onclick*='generator']").classList.add('active');
+        document.getElementById('generatorTab').classList.add('active');
+      } else {
+        document.querySelector("[onclick*='database']").classList.add('active');
+        document.getElementById('databaseTab').classList.add('active');
+      }
+    }
+
+    // Dynamic data-list configuration tool
+    function updateGlobalDatalist() {
+      const datalist = document.getElementById('studentsDataset');
+      datalist.innerHTML = '';
+      studentDB.forEach(student => {
+        if (student.name) {
+          const option = document.createElement('option');
+          option.value = student.name;
+          datalist.appendChild(option);
+        }
+      });
+    }
+
+    function saveDatabase() {
+      localStorage.setItem('studentDB', JSON.stringify(studentDB));
+      updateGlobalDatalist();
+    }
+
+    function bulkSaveManifestRows() {
+      const rows = document.querySelectorAll('#dynamicRowsContainer .student-row');
+
+      rows.forEach(row => {
+        const name = (row.querySelector('.stud-name').value || '').trim();
+        const contact = row.querySelector('.stud-contact') ? (row.querySelector('.stud-contact').value || '').trim() : '';
+        const dropPoint = row.querySelector('.stud-dropping') ? (row.querySelector('.stud-dropping').value || '').trim() : '';
+
+        if (name) {
+          const existingIndex = studentDB.findIndex(s => s.name.toLowerCase() === name.toLowerCase());
+
+          if (existingIndex > -1) {
+            if (contact) studentDB[existingIndex].contact = contact;
+            if (dropPoint) studentDB[existingIndex].dropPoint = dropPoint;
+          } else {
+            studentDB.push({ name, contact, dropPoint });
+          }
+        }
+      });
+
+      saveDatabase();
+    }
+
+    function addProfileFromUI() {
+      const name = document.getElementById('dbName').value.trim();
+      const contact = document.getElementById('dbContact').value.trim();
+      const dropPoint = document.getElementById('dbDrop').value.trim();
+
+      if (!name) return alert('Student Name is required.');
+
+      const existingIndex = studentDB.findIndex(s => s.name.toLowerCase() === name.toLowerCase());
+      if (existingIndex > -1) {
+        studentDB[existingIndex] = { name, contact, dropPoint };
+      } else {
+        studentDB.push({ name, contact, dropPoint });
+      }
+
+      saveDatabase();
+      renderDatabaseTable();
+
+      document.getElementById('dbName').value = '';
+      document.getElementById('dbContact').value = '';
+      document.getElementById('dbDrop').value = '';
+    }
+
+    function deleteProfile(index) {
+      if (confirm("Delete this student profile record?")) {
+        studentDB.splice(index, 1);
+        saveDatabase();
+        renderDatabaseTable();
+      }
+    }
+
+    function editProfile(index) {
+      const student = studentDB[index];
+      document.getElementById('dbName').value = student.name;
+      document.getElementById('dbContact').value = student.contact;
+      document.getElementById('dbDrop').value = student.dropPoint;
+      studentDB.splice(index, 1);
+    }
+
+    function renderDatabaseTable() {
+      const tbody = document.querySelector('#dbTable tbody');
+      tbody.innerHTML = '';
+      studentDB.forEach((student, index) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${student.name}</td>
+          <td>${student.contact || 'N/A'}</td>
+          <td>${student.dropPoint || 'N/A'}</td>
+          <td>
+            <button class="btn-success" style="padding: 6px 10px; font-size:12px;" onclick="editProfile(${index})">Edit</button>
+            <button class="btn-danger" style="padding: 6px 10px; font-size:12px;" onclick="deleteProfile(${index})">Delete</button>
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    function exportDatabaseJSON() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(studentDB, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", "student_directory_backup.json");
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+    }
+
+    function importDatabaseJSON(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        try {
+          const importedData = JSON.parse(e.target.result);
+          if (Array.isArray(importedData)) {
+            studentDB = importedData;
+            saveDatabase();
+            renderDatabaseTable();
+            alert("Database imported successfully!");
+          } else {
+            alert("Invalid format structure detected.");
+          }
+        } catch (err) {
+          alert("Error parsing selection file.");
+        }
+      };
+      reader.readAsText(file);
+    }
+
     function resetStudentSection() {
       document.getElementById('studentInputsSection').style.display = 'none';
       document.getElementById('dynamicRowsContainer').innerHTML = '';
     }
 
+    function autoFillRowData(inputElement) {
+      const selectedName = inputElement.value;
+      const match = studentDB.find(s => s.name === selectedName);
+      if (match) {
+        const parentRow = inputElement.closest('.student-row');
+        const contactInput = parentRow.querySelector('.stud-contact');
+        const dropInput = parentRow.querySelector('.stud-dropping');
+
+        if (contactInput) contactInput.value = match.contact;
+        if (dropInput) dropInput.value = match.dropPoint;
+      }
+    }
+
+    function createRowElement(type) {
+      const row = document.createElement('div');
+      row.className = `student-row manifest-${type}`;
+
+      if (type === 'transport') {
+        row.innerHTML = `
+          <div class="autocomplete-wrapper">
+            <input type="text" class="stud-name" list="studentsDataset" placeholder="Name" oninput="autoFillRowData(this)" required>
+          </div>
+          <input type="text" class="stud-contact" placeholder="Contact" required>
+          <input type="text" class="stud-dropping" placeholder="Dropping" required>
+          <button type="button" class="btn-danger" style="padding: 10px;" title="Delete Row" onclick="this.parentElement.remove()">X</button>
+        `;
+      } else {
+        row.innerHTML = `
+          <div class="autocomplete-wrapper">
+            <input type="text" class="stud-name" list="studentsDataset" placeholder="Name" oninput="autoFillRowData(this)" required>
+          </div>
+          <button type="button" class="btn-danger" style="padding: 10px;" title="Delete Row" onclick="this.parentElement.remove()">X</button>
+        `;
+      }
+      return row;
+    }
+
     function generateStudentFields() {
       const count = parseInt(document.getElementById('totalStudents').value);
       const type = document.getElementById('manifestType').value;
-      
+
       if (!count || count < 1) {
         alert('Please enter a valid number of students.');
         return;
@@ -161,48 +586,53 @@
 
       const headerContainer = document.getElementById('tableHeader');
       const container = document.getElementById('dynamicRowsContainer');
-      
+
       container.innerHTML = '';
       headerContainer.className = `student-row manifest-${type}`;
 
-      // Build Headers dynamically
       if (type === 'transport') {
-        headerContainer.style.textAlign = 'center';
         headerContainer.innerHTML = `
           <div>Student Name</div>
           <div>Contact</div>
           <div>Dropping Point</div>
+          <div style="width:32px"></div>
         `;
       } else {
-        headerContainer.style.textAlign = 'left';
         headerContainer.innerHTML = `
-          <div style="padding-left: 5px;">Student Name</div>
+          <div>Student Name</div>
+          <div style="width:32px"></div>
         `;
       }
 
-      // Build input fields rows dynamically
+      // Responsive mobile structural design pattern adjustment rule
+      if (window.innerWidth < 600) {
+        headerContainer.style.display = 'none';
+      } else {
+        headerContainer.style.display = 'grid';
+      }
+
       for (let i = 0; i < count; i++) {
-        const row = document.createElement('div');
-        row.className = `student-row manifest-${type}`;
-        
-        if (type === 'transport') {
-          row.innerHTML = `
-            <input type="text" class="stud-name" placeholder="Name ${i + 1}" required>
-            <input type="text" class="stud-contact" placeholder="Contact ${i + 1}" required>
-            <input type="text" class="stud-dropping" placeholder="Dropping Point" required>
-          `;
-        } else {
-          row.innerHTML = `
-            <input type="text" class="stud-name" placeholder="Name ${i + 1}" required>
-          `;
-        }
-        container.appendChild(row);
+        container.appendChild(createRowElement(type));
       }
 
       document.getElementById('studentInputsSection').style.display = 'block';
     }
 
+    function addNewRow() {
+      const type = document.getElementById('manifestType').value;
+      const container = document.getElementById('dynamicRowsContainer');
+
+      if (document.getElementById('studentInputsSection').style.display === 'none') {
+        document.getElementById('totalStudents').value = 1;
+        generateStudentFields();
+      } else {
+        container.appendChild(createRowElement(type));
+      }
+    }
+
     function generateLibraryPDF() {
+      bulkSaveManifestRows();
+
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF({
         orientation: 'p',
@@ -216,6 +646,7 @@
       const time = document.getElementById('time').value || 'N/A';
       const rawStipend = document.getElementById('stipend').value || '0';
       const stipend = Number(rawStipend);
+      const totalStudentsNumber = Number(document.getElementById('totalStudents').value);
 
       let formattedDate = 'N/A';
       if (rawDate) {
@@ -225,33 +656,33 @@
         }
       }
 
-      // Main Header Title
       doc.setFont("Helvetica", "Bold");
       doc.setFontSize(22);
       doc.text(hotelName, 105, 20, { align: "center" });
 
-      // Conditionally inject "PAYMENT RECEIVING LIST" subtitle if selected
       let startYTable = 60;
       if (type === 'payment') {
         doc.setFontSize(14);
         doc.text("PAYMENT LIST", 105, 28, { align: "center" });
-        
+
         doc.setFont("Helvetica", "Normal");
         doc.setFontSize(11);
         doc.text(`Date: ${formattedDate}`, 105, 36, { align: "center" });
         doc.text(`Time: ${time}`, 105, 42, { align: "center" });
         doc.text(`Stipend: Rs.${stipend}`, 105, 48, { align: "center" });
-        startYTable = 55; // Adjust placement slightly down for structural symmetry
+        doc.text(`Total Students: ${totalStudentsNumber}`, 105, 48, { align: "center" });
+        startYTable = 62;
       } else {
         doc.setFont("Helvetica", "Normal");
         doc.setFontSize(11);
         doc.text(`Date: ${formattedDate}`, 105, 28, { align: "center" });
         doc.text(`Time: ${time}`, 105, 34, { align: "center" });
         doc.text(`Stipend: Rs.${stipend}`, 105, 40, { align: "center" });
-        startYTable = 48;
+        doc.text(`Total Students: ${totalStudentsNumber}`, 105, 48, { align: "center" });
+
+        startYTable = 55;
       }
 
-      // Gather Form Data
       const names = document.querySelectorAll('.stud-name');
       const tableBodyData = [];
       let tableHeaders = [];
@@ -262,23 +693,26 @@
         const droppings = document.querySelectorAll('.stud-dropping');
 
         names.forEach((nameInput, index) => {
-          tableBodyData.push([
-            nameInput.value || '',
-            contacts[index].value || '',
-            droppings[index].value || ''
-          ]);
+          if (nameInput.value || contacts[index].value || droppings[index].value) {
+            tableBodyData.push([
+              nameInput.value || '',
+              contacts[index].value || '',
+              droppings[index].value || ''
+            ]);
+          }
         });
       } else {
         tableHeaders = [['STUDENT NAME', 'SIGNATURE']];
         names.forEach((nameInput) => {
-          tableBodyData.push([
-            nameInput.value || '',
-            '' // Leaves clean canvas for physical confirmation
-          ]);
+          if (nameInput.value) {
+            tableBodyData.push([
+              nameInput.value || '',
+              ''
+            ]);
+          }
         });
       }
 
-      // Base Structural Setup Engine
       const autoTableOptions = {
         startY: startYTable,
         head: tableHeaders,
@@ -300,12 +734,11 @@
         margin: { top: 20, left: 15, right: 15 }
       };
 
-      // Configuration for spacing and proportions
       if (type === 'payment') {
-        autoTableOptions.styles.cellPadding = 2; // Deep cell size for handwriting support
+        autoTableOptions.styles.cellPadding = 1;
         autoTableOptions.columnStyles = {
-          0: { halign: 'center', cellWidth: 80 }, 
-          1: { cellWidth: 100 } 
+          0: { halign: 'center', cellWidth: 80 },
+          1: { cellWidth: 100 }
         };
       } else {
         autoTableOptions.styles.cellPadding = 1;
