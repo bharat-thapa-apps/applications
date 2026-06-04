@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tenant Bill Generator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+            --border: #e2e8f0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 40px 20px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 40px;
+            flex-wrap: wrap;
+        }
+
+        .container {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            width: 100%;
+            max-width: 450px;
+        }
+
+        h2 {
+            margin-top: 0;
+            margin-bottom: 24px;
+            color: var(--primary);
+            font-size: 24px;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 6px;
+            font-size: 14px;
+            color: #475569;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 15px;
+            transition: border-color 0.2s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        button {
+            width: 100%;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: var(--primary-hover);
+        }
+
+        /* Bill Preview Styling */
+        #bill-preview-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .bill-card {
+            background: #ffffff;
+            width: 380px;
+            padding: 35px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.05);
+            box-sizing: border-box;
+        }
+
+        .bill-header {
+            text-align: center;
+            border-bottom: 2px dashed #cbd5e1;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+
+        .bill-header h3 {
+            margin: 0;
+            font-size: 22px;
+            letter-spacing: 1px;
+            color: #0f172a;
+        }
+
+        .bill-header p {
+            margin: 5px 0 0 0;
+            font-size: 13px;
+            color: #64748b;
+        }
+
+        .bill-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+
+        .bill-row.sub-info {
+            padding-left: 15px;
+            color: #64748b;
+            font-size: 13px;
+            margin-top: -8px;
+            margin-bottom: 12px;
+            font-style: italic;
+        }
+
+        .bill-row.total {
+            border-top: 2px dashed #cbd5e1;
+            margin-top: 20px;
+            padding-top: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #000;
+        }
+
+        .download-btn {
+            background-color: #059669;
+        }
+
+        .download-btn:hover {
+            background-color: #047857;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Bill Generator</h2>
+        <div class="form-group">
+            <label for="tenantName">Tenant Name</label>
+            <input type="text" id="tenantName">
+        </div>
+        <div class="form-group">
+            <label for="roomRent">Room Rent (₹)</label>
+            <input type="number" id="roomRent">
+        </div>
+        <div class="form-group">
+            <label for="ratePerUnit">Electricity Rate (₹ / Unit)</label>
+            <input type="number" id="ratePerUnit">
+        </div>
+        <div class="form-group">
+            <label for="prevReading">Previous Unit Reading</label>
+            <input type="number" id="prevReading">
+        </div>
+        <div class="form-group">
+            <label for="currReading">Current Unit Reading</label>
+            <input type="number" id="currReading">
+        </div>
+        <div class="form-group">
+            <label for="adjustment">Adjustment / Advance ( Deducted - ₹ )</label>
+            <input type="number" id="adjustment">
+        </div>
+        <div class="form-group">
+            <label for="prevDue">Previous Due ( Added + ₹ )</label>
+            <input type="number" id="prevDue">
+        </div>
+        <button onclick="generateBill()">Calculate & Update</button>
+    </div>
+
+    <div id="bill-preview-container">
+        <div class="bill-card" id="billReceipt">
+            <div class="bill-header">
+                <h3>RENT RECEIPT</h3>
+                <p id="billDate">Date: --/--/----</p>
+            </div>
+            
+            <div class="bill-row">
+                <strong>Tenant Name:</strong>
+                <span id="lblTenantName">--</span>
+            </div>
+            <hr style="border: none; border-top: 1px solid #f1f5f9; margin: 15px 0;">
+            
+            <div class="bill-row">
+                <span>Room Rent:</span>
+                <span id="lblRoomRent">₹0.00</span>
+            </div>
+
+            <div class="bill-row">
+                <span>Electricity Charges:</span>
+                <span id="lblElectricCharges">₹0.00</span>
+            </div>
+            <div class="bill-row sub-info">
+                <span id="lblElectricDetails">(0 units consumed)</span>
+            </div>
+
+            <div class="bill-row" style="color: #dc2626;">
+                <span>Less: Adjustment/Advance:</span>
+                <span id="lblAdjustment">- ₹0.00</span>
+            </div>
+
+            <div class="bill-row" style="color: #b45309;">
+                <span>Add: Previous Due:</span>
+                <span id="lblPrevDue">+ ₹0.00</span>
+            </div>
+
+            <div class="bill-row total">
+                <span>Total Payable:</span>
+                <span id="lblTotal">₹0.00</span>
+            </div>
+        </div>
+        
+        <button class="download-btn" onclick="downloadBillImage()">Download Bill Image</button>
+    </div>
+
+    <script>
+        // Set current date on load
+        document.getElementById('billDate').innerText = "Date: " + new Date().toLocaleDateString('en-IN', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+
+        function generateBill() {
+            // Get values from inputs
+            const name = document.getElementById('tenantName').value;
+            const roomRent = parseFloat(document.getElementById('roomRent').value) || 0;
+            const ratePerUnit = parseFloat(document.getElementById('ratePerUnit').value) || 0;
+            const prevReading = parseFloat(document.getElementById('prevReading').value) || 0;
+            const currReading = parseFloat(document.getElementById('currReading').value) || 0;
+            const adjustment = parseFloat(document.getElementById('adjustment').value) || 0;
+            const prevDue = parseFloat(document.getElementById('prevDue').value) || 0;
+
+            // Math Logic
+            const totalUnits = Math.max(0, currReading - prevReading);
+            const electricityCharges = totalUnits * ratePerUnit;
+            
+            // Formula: Rent + Elec - Adjustment + PrevDue
+            const totalPayable = roomRent + electricityCharges - adjustment + prevDue;
+
+            // Update UI Receipt
+            document.getElementById('lblTenantName').innerText = name;
+            document.getElementById('lblRoomRent').innerText = "₹" + roomRent.toFixed(2);
+            document.getElementById('lblElectricCharges').innerText = "₹" + electricityCharges.toFixed(2);
+            
+            // Human-friendly description string
+            document.getElementById('lblElectricDetails').innerText = `(${totalUnits} units consumed from ${prevReading} to ${currReading} @ ₹${ratePerUnit}/unit)`;
+            
+            document.getElementById('lblAdjustment').innerText = "- ₹" + adjustment.toFixed(2);
+            document.getElementById('lblPrevDue').innerText = "+ ₹" + prevDue.toFixed(2);
+            document.getElementById('lblTotal').innerText = "₹" + totalPayable.toFixed(2);
+        }
+
+        function downloadBillImage() {
+            const billElement = document.getElementById('billReceipt');
+            const tenantName = document.getElementById('tenantName').value || 'Tenant';
+            
+            // Generate canvas with higher scale for sharp crisp rendering text
+            html2canvas(billElement, {
+                scale: 3, 
+                useCORS: true,
+                backgroundColor: "#ffffff"
+            }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = `${tenantName.replace(/\s+/g, '_')}_Bill.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            });
+        }
+
+        // Initialize on first run
+        generateBill();
+    </script>
+</body>
+</html>
