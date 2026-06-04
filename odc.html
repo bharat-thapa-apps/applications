@@ -670,8 +670,8 @@
         doc.text(`Date: ${formattedDate}`, 105, 36, { align: "center" });
         doc.text(`Time: ${time}`, 105, 42, { align: "center" });
         doc.text(`Stipend: Rs.${stipend}`, 105, 48, { align: "center" });
-        doc.text(`Total Students: ${totalStudentsNumber}`, 105, 48, { align: "center" });
-        startYTable = 62;
+        doc.text(`Total Students: ${totalStudentsNumber}`, 105, 54, { align: "center" });
+        startYTable = 68;
       } else {
         doc.setFont("Helvetica", "Normal");
         doc.setFontSize(11);
@@ -688,13 +688,14 @@
       let tableHeaders = [];
 
       if (type === 'transport') {
-        tableHeaders = [['NAME', 'CONTACT', 'DROPPING']];
+        tableHeaders = [['S.NO', 'NAME', 'CONTACT', 'DROPPING']];
         const contacts = document.querySelectorAll('.stud-contact');
         const droppings = document.querySelectorAll('.stud-dropping');
 
         names.forEach((nameInput, index) => {
           if (nameInput.value || contacts[index].value || droppings[index].value) {
             tableBodyData.push([
+              tableBodyData.length + 1,
               nameInput.value || '',
               contacts[index].value || '',
               droppings[index].value || ''
@@ -702,10 +703,11 @@
           }
         });
       } else {
-        tableHeaders = [['STUDENT NAME', 'SIGNATURE']];
+        tableHeaders = [['S.NO', 'STUDENT NAME', 'SIGNATURE']];
         names.forEach((nameInput) => {
           if (nameInput.value) {
             tableBodyData.push([
+              tableBodyData.length + 1,
               nameInput.value || '',
               ''
             ]);
@@ -737,8 +739,9 @@
       if (type === 'payment') {
         autoTableOptions.styles.cellPadding = 1;
         autoTableOptions.columnStyles = {
-          0: { halign: 'center', cellWidth: 80 },
-          1: { cellWidth: 100 }
+          0: { cellWidth: 15, halign: 'center' }, // S.No
+          1: { cellWidth: 65, halign: 'center' }, // Name
+          2: { cellWidth: 100 }                   // Signature
         };
       } else {
         autoTableOptions.styles.cellPadding = 1;
