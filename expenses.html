@@ -5,24 +5,36 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Personal Expense Tracker</title>
-    <!-- Tailwind CSS for clean, modern styling -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <!-- jsPDF Library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 
 <body class="bg-gray-50 text-gray-800 font-sans antialiased selection:bg-emerald-100">
 
     <div class="max-w-5xl mx-auto p-4 md:p-8 space-y-6">
-        <!-- Header -->
-        <header class="text-center md:text-left pt-2">
-            <h1 class="text-2xl md:text-3xl font-black text-gray-900 tracking-tight">🇮🇳 Expense Tracker</h1>
-            <p class="text-gray-500 text-xs md:text-sm mt-1">Manage your budget securely via GitHub Pages.</p>
+        <header class="text-center md:text-left pt-2 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div>
+                <h1 class="text-2xl md:text-3xl font-black text-gray-900 tracking-tight">🇮🇳 Expense Tracker</h1>
+                <p class="text-gray-500 text-xs md:text-sm mt-1">Manage your budget securely via GitHub Pages.</p>
+            </div>
+            
+            <div class="bg-emerald-50 border border-emerald-200/60 rounded-xl p-3 max-w-sm w-full self-center md:self-auto shadow-xs">
+                <div class="flex items-center justify-between mb-1">
+                    <label for="globalDefaultDateTime" class="text-[11px] font-bold text-emerald-800 uppercase tracking-wider flex items-center gap-1">
+                        ⏳ Session Entry Backdate
+                    </label>
+                    <button onclick="document.getElementById('globalDefaultDateTime').value = ''" 
+                            class="text-[10px] text-emerald-600 hover:text-emerald-800 underline cursor-pointer">
+                        Clear / Use Current Time
+                    </button>
+                </div>
+                <input type="datetime-local" id="globalDefaultDateTime"
+                       class="w-full px-2.5 py-1.5 border border-emerald-200 rounded-lg text-xs focus:outline-emerald-500 bg-white text-gray-700 transition-all"
+                       title="If filled, new items default to this time unless overridden inside the specific transaction form.">
+            </div>
         </header>
 
-        <!-- Dashboard Grid -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
-            <!-- Balance Card -->
             <div class="bg-white p-5 md:p-6 rounded-2xl shadow-xs border border-gray-100 flex flex-col justify-between">
                 <div>
                     <h2 class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Current Balance</h2>
@@ -42,7 +54,6 @@
                 </div>
             </div>
 
-            <!-- Total Expenses Card -->
             <div class="bg-white p-5 md:p-6 rounded-2xl shadow-xs border border-gray-100 flex flex-col justify-between">
                 <div>
                     <h2 class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Total Expenses</h2>
@@ -55,7 +66,6 @@
                 </button>
             </div>
 
-            <!-- Quick Add Expense Form -->
             <div class="bg-white p-5 md:p-6 rounded-2xl shadow-xs border border-gray-100">
                 <h3 class="text-base md:text-lg font-bold text-gray-900 mb-3">Quick Add Expense</h3>
                 <form id="expenseForm" onsubmit="handleExpenseSubmit(event)" class="space-y-3">
@@ -77,7 +87,7 @@
                         </select>
                     </div>
                     <div>
-                        <label class="text-[11px] font-medium text-gray-400 block mb-1">Date & Time (Optional)</label>
+                        <label class="text-[11px] font-medium text-gray-400 block mb-1">Date & Time (Overrides entry backdate)</label>
                         <input type="datetime-local" id="expenseDateTime"
                             class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-emerald-500 bg-gray-50/50 focus:bg-white transition-all">
                     </div>
@@ -89,7 +99,6 @@
             </div>
         </div>
 
-        <!-- NEW FEATURE: JSON Data Backup & Sharing Panel -->
         <div
             class="bg-amber-50/60 border border-amber-200/80 rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div class="text-center sm:text-left">
@@ -100,12 +109,10 @@
                     share with others or transfer devices.</p>
             </div>
             <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
-                <!-- Export Trigger -->
                 <button onclick="exportToJSON()"
                     class="flex-1 sm:flex-initial bg-amber-600 hover:bg-amber-700 text-white font-semibold text-xs py-2.5 px-4 rounded-xl transition cursor-pointer active:scale-[0.98]">
                     📤 Export JSON
                 </button>
-                <!-- Import Hidden input bridge -->
                 <label
                     class="flex-1 sm:flex-initial text-center bg-white hover:bg-gray-50 border border-amber-300 text-amber-800 font-semibold text-xs py-2.5 px-4 rounded-xl transition cursor-pointer active:scale-[0.98]">
                     📥 Import JSON
@@ -115,13 +122,10 @@
             </div>
         </div>
 
-        <!-- History Content Block -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <!-- Expenses History List -->
             <div class="lg:col-span-2 bg-white p-5 md:p-6 rounded-2xl shadow-xs border border-gray-100">
                 <h3 class="text-lg font-bold text-gray-900 mb-4">Expense Transactions</h3>
 
-                <!-- Desktop View -->
                 <div class="hidden md:block overflow-x-auto">
                     <table class="w-full text-left border-collapse">
                         <thead>
@@ -134,48 +138,39 @@
                             </tr>
                         </thead>
                         <tbody id="expenseTableBodyDesktop" class="divide-y divide-gray-50 text-sm">
-                            <!-- Injected dynamically -->
-                        </tbody>
+                            </tbody>
                     </table>
                 </div>
 
-                <!-- Mobile Responsive View -->
                 <div id="expenseCardsMobile" class="block md:hidden space-y-3">
-                    <!-- Injected dynamically -->
-                </div>
+                    </div>
             </div>
 
-            <!-- Balance Logs List -->
             <div class="bg-white p-5 md:p-6 rounded-2xl shadow-xs border border-gray-100">
                 <h3 class="text-lg font-bold text-gray-900 mb-4">Funding Logs</h3>
                 <div class="space-y-3 overflow-y-auto max-h-[400px] pr-1" id="balanceLogContainer">
-                    <!-- Injected dynamically -->
-                </div>
+                    </div>
             </div>
         </div>
     </div>
 
-    <!-- Add Balance Modal -->
     <div id="balanceModal"
         class="hidden fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 z-50">
         <div class="bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl">
             <h3 class="text-lg font-bold mb-2 text-gray-900">Add Main Balance</h3>
             <form onsubmit="handleBalanceSubmit(event)" class="space-y-4">
                 <div>
-                    <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Amount
-                        (₹)</label>
+                    <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Amount (₹)</label>
                     <input type="number" id="balanceAmount" step="0.01" required placeholder="0.00"
                         class="w-full px-3 py-2.5 border border-gray-200 rounded-xl focus:outline-emerald-500 bg-gray-50">
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Note /
-                        Source</label>
+                    <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Note / Source</label>
                     <input type="text" id="balanceNote" placeholder="e.g., Salary, Dividend" required
                         class="w-full px-3 py-2.5 border border-gray-200 rounded-xl focus:outline-emerald-500 bg-gray-50">
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Date & Time
-                        (Optional)</label>
+                    <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Date & Time (Overrides entry backdate)</label>
                     <input type="datetime-local" id="balanceDateTime"
                         class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-emerald-500 bg-gray-50">
                 </div>
@@ -189,7 +184,6 @@
         </div>
     </div>
 
-    <!-- App Logic Script -->
     <script>
         let state = {
             balanceLogs: JSON.parse(localStorage.getItem('tracker_balanceLogs')) || [],
@@ -221,6 +215,20 @@
             const totalDeposits = state.balanceLogs.reduce((acc, curr) => acc + curr.amount, 0);
             const totalExpenses = state.expenses.reduce((acc, curr) => acc + curr.amount, 0);
             return { currentBalance: totalDeposits - totalExpenses, totalExpenses };
+        }
+
+        // Central logic handler to determine fallback parameters
+        function resolveTimestamp(explicitInputId) {
+            const explicitInputValue = document.getElementById(explicitInputId).value;
+            const globalDefaultValue = document.getElementById('globalDefaultDateTime').value;
+            
+            if (explicitInputValue) {
+                return new Date(explicitInputValue).toISOString();
+            } else if (globalDefaultValue) {
+                return new Date(globalDefaultValue).toISOString();
+            } else {
+                return new Date().toISOString();
+            }
         }
 
         function render() {
@@ -308,8 +316,6 @@
             reader.onload = function (e) {
                 try {
                     const parsedData = JSON.parse(e.target.result);
-
-                    // Validation verification structure step to make sure formatting aligns safely
                     if (parsedData && Array.isArray(parsedData.balanceLogs) && Array.isArray(parsedData.expenses)) {
                         if (confirm("Are you sure you want to load this data? This will append or replace your current browser memory tracking dataset.")) {
                             state.balanceLogs = parsedData.balanceLogs;
@@ -323,7 +329,6 @@
                 } catch (err) {
                     alert("Error parsing file. Ensure the file hasn't been modified manually.");
                 }
-                // clear file choice value so user can import same file multiple times if needed
                 document.getElementById('jsonFileInput').value = '';
             };
             reader.readAsText(file);
@@ -338,7 +343,7 @@
             const noteInput = document.getElementById('balanceNote');
             const dateInput = document.getElementById('balanceDateTime');
 
-            const timestamp = dateInput.value ? new Date(dateInput.value).toISOString() : new Date().toISOString();
+            const timestamp = resolveTimestamp('balanceDateTime');
 
             state.balanceLogs.push({
                 id: 'bal_' + Date.now(),
@@ -362,7 +367,7 @@
             const categoryInput = document.getElementById('expenseCategory');
             const dateInput = document.getElementById('expenseDateTime');
 
-            const timestamp = dateInput.value ? new Date(dateInput.value).toISOString() : new Date().toISOString();
+            const timestamp = resolveTimestamp('expenseDateTime');
 
             if (idField) {
                 const index = state.expenses.findIndex(exp => exp.id === idField);
