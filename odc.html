@@ -643,7 +643,18 @@
       const type = document.getElementById('manifestType').value;
       const hotelName = (document.getElementById('hotelName').value || 'N/A').toUpperCase();
       const rawDate = document.getElementById('date').value;
-      const time = document.getElementById('time').value || 'N/A';
+      const rawTime = document.getElementById('time').value;
+      let time = 'N/A';
+
+      if (rawTime) {
+        const [hours, minutes] = rawTime.split(':');
+        const h = parseInt(hours, 10);
+
+        const ampm = h >= 12 ? 'PM' : 'AM';
+        const displayHour = String(h % 12 || 12).padStart(2, '0');
+
+        time = `${displayHour}:${minutes} ${ampm}`;
+      }
       const rawStipend = document.getElementById('stipend').value || '0';
       const stipend = Number(rawStipend);
       const totalStudentsNumber = Number(document.getElementById('totalStudents').value);
