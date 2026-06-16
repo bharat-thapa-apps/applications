@@ -7,12 +7,12 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         :root {
-            --primary: #2563eb;
-            --primary-hover: #1d4ed8;
-            --bg: #f8fafc;
+            --primary: #1e3a8a;
+            --primary-hover: #172554;
+            --bg: #f1f5f9;
             --card-bg: #ffffff;
-            --text: #1e293b;
-            --border: #e2e8f0;
+            --text: #0f172a;
+            --border: #94a3b8;
         }
 
         body {
@@ -31,41 +31,40 @@
         .container {
             background: var(--card-bg);
             padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            border-radius: 8px;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
             width: 100%;
-            max-width: 450px;
+            max-width: 420px;
         }
 
         h2 {
             margin-top: 0;
             margin-bottom: 24px;
             color: var(--primary);
-            font-size: 24px;
-            border-bottom: 2px solid var(--border);
+            font-size: 22px;
+            border-bottom: 2px solid var(--primary);
             padding-bottom: 10px;
         }
 
         .form-group {
-            margin-bottom: 16px;
+            margin-bottom: 14px;
         }
 
         label {
             display: block;
-            margin-bottom: 6px;
-            font-weight: 6px;
+            margin-bottom: 4px;
+            font-weight: 600;
             font-size: 14px;
-            color: #475569;
+            color: #334155;
         }
 
         input {
             width: 100%;
-            padding: 10px;
+            padding: 8px 12px;
             border: 1px solid var(--border);
-            border-radius: 6px;
+            border-radius: 4px;
             box-sizing: border-box;
-            font-size: 15px;
-            transition: border-color 0.2s;
+            font-size: 14px;
         }
 
         input:focus {
@@ -79,8 +78,8 @@
             color: white;
             border: none;
             padding: 12px;
-            border-radius: 6px;
-            font-size: 16px;
+            border-radius: 4px;
+            font-size: 15px;
             font-weight: 600;
             cursor: pointer;
             transition: background-color 0.2s;
@@ -91,7 +90,7 @@
             background-color: var(--primary-hover);
         }
 
-        /* Bill Preview Styling */
+        /* Traditional Bill Box Styling */
         #bill-preview-container {
             display: flex;
             flex-direction: column;
@@ -101,72 +100,131 @@
 
         .bill-card {
             background: #ffffff;
-            width: 380px;
-            padding: 35px;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.05);
+            width: 450px;
+            padding: 30px;
+            border: 2px solid #000000;
             box-sizing: border-box;
+            position: relative;
+        }
+
+        /* Traditional double border edge detail */
+        .bill-card::before {
+            content: '';
+            position: absolute;
+            top: 3px; left: 3px; right: 3px; bottom: 3px;
+            border: 1px solid #000000;
+            pointer-events: none;
         }
 
         .bill-header {
             text-align: center;
-            border-bottom: 2px dashed #cbd5e1;
-            padding-bottom: 15px;
-            margin-bottom: 20px;
+            border-bottom: 2px solid #000000;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
         }
 
         .bill-header h3 {
             margin: 0;
-            font-size: 22px;
-            letter-spacing: 1px;
-            color: #0f172a;
+            font-size: 24px;
+            letter-spacing: 2px;
+            color: #000000;
+            font-weight: 800;
         }
 
         .bill-header p {
             margin: 5px 0 0 0;
-            font-size: 13px;
-            color: #64748b;
+            font-size: 14px;
+            color: #000000;
+            font-weight: 600;
         }
 
-        .bill-row {
+        .bill-meta-row {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 12px;
+            margin-bottom: 15px;
+            font-size: 14px;
+            border-bottom: 1px dashed #000000;
+            padding-bottom: 8px;
+        }
+
+        .bilingual-label {
+            font-size: 14px;
+            font-weight: 700;
+            color: #000000;
+        }
+        
+        .bilingual-label span {
+            font-size: 11px;
+            font-weight: normal;
+            display: block;
+            color: #475569;
+            margin-top: -2px;
+        }
+
+        /* Traditional Ledger Table Layout */
+        .traditional-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        .traditional-table th, 
+        .traditional-table td {
+            border: 1px solid #000000;
+            padding: 8px 10px;
+            text-align: left;
+            vertical-align: middle;
             font-size: 14px;
         }
 
-        .bill-row.sub-info {
-            padding-left: 15px;
-            color: #64748b;
-            font-size: 13px;
-            margin-top: -8px;
-            margin-bottom: 12px;
-            font-style: italic;
+        .traditional-table th {
+            background-color: #f8fafc;
+            font-weight: bold;
+            text-align: center;
         }
 
-        .bill-row.total {
-            border-top: 2px dashed #cbd5e1;
-            margin-top: 20px;
-            padding-top: 15px;
+        .text-right {
+            text-align: right !important;
+        }
+
+        .text-center {
+            text-align: center !important;
+        }
+
+        /* Inner meter reading table layout */
+        .meter-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 4px 0;
+        }
+        .meter-table td {
+            border: 1px dotted #000000;
+            font-size: 12px;
+            padding: 4px 6px;
+        }
+
+        .total-row td {
             font-size: 18px;
             font-weight: bold;
-            color: #000;
+            background-color: #f8fafc;
+            border-top: 2px double #000000;
+            border-bottom: 2px double #000000;
         }
 
         .download-btn {
-            background-color: #059669;
+            background-color: #16a34a;
+            border-radius: 4px;
         }
 
         .download-btn:hover {
-            background-color: #047857;
+            background-color: #15803d;
         }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h2>Bill Generator</h2>
+        <h2>Bill Input Panel</h2>
         <div class="form-group">
             <label for="tenantName">Tenant Name</label>
             <input type="text" id="tenantName">
@@ -176,7 +234,7 @@
             <input type="number" id="roomRent">
         </div>
         <div class="form-group">
-            <label for="ratePerUnit">Electricity Rate (₹ / Unit)</label>
+            <label for="ratePerUnit">Electricity Rate (₹/Unit)</label>
             <input type="number" id="ratePerUnit">
         </div>
         <div class="form-group">
@@ -188,72 +246,120 @@
             <input type="number" id="currReading">
         </div>
         <div class="form-group">
-            <label for="adjustment">Adjustment / Advance ( Deducted - ₹ )</label>
+            <label for="adjustment">Adjustment / Advance (Deducted - ₹)</label>
             <input type="number" id="adjustment">
         </div>
         <div class="form-group">
-            <label for="prevDue">Previous Due ( Added + ₹ )</label>
+            <label for="prevDue">Previous Due (Added + ₹)</label>
             <input type="number" id="prevDue">
         </div>
-        <button onclick="generateBill()">Calculate & Update</button>
+        <button onclick="generateBill()">Calculate & Update Receipt</button>
     </div>
 
     <div id="bill-preview-container">
         <div class="bill-card" id="billReceipt">
             <div class="bill-header">
-                <h3>RENT BILL</h3>
-                <p id="billDate">Date: --/--/----</p>
+                <h3>RENT & ELECTRICITY RECEIPT</h3>
+                <p>किराया एवं बिजली बिल रसीद</p>
             </div>
             
-            <div class="bill-row">
-                <strong>Tenant Name:</strong>
-                <span id="lblTenantName">--</span>
-            </div>
-            <hr style="border: none; border-top: 1px solid #f1f5f9; margin: 15px 0;">
-            
-            <div class="bill-row">
-                <span>Room Rent:</span>
-                <span id="lblRoomRent">₹0.00</span>
-            </div>
-
-            <div class="bill-row">
-                <span>Electricity Charges:</span>
-                <span id="lblElectricCharges">₹0.00</span>
-            </div>
-            <div class="bill-row sub-info">
-                <span id="lblElectricDetails">(0 units consumed)</span>
+            <div class="bill-meta-row">
+                <div>
+                    <strong>Name / नाम:</strong> 
+                    <span id="lblTenantName" style="font-weight: 600; padding-left: 5px;">--</span>
+                </div>
+                <div>
+                    <span id="billDate" style="font-weight: 600;">Date: --/--/----</span>
+                </div>
             </div>
 
-            <div class="bill-row" style="color: #dc2626;">
-                <span>Less: Adjustment/Advance:</span>
-                <span id="lblAdjustment">- ₹0.00</span>
-            </div>
+            <table class="traditional-table">
+                <thead>
+                    <tr>
+                        <th style="width: 65%;">Description / विवरण</th>
+                        <th style="width: 35%;" class="text-right">Amount / राशि (₹)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="bilingual-label">
+                            Room Rent 
+                            <span>कमरे का किराया</span>
+                        </td>
+                        <td class="text-right" id="lblRoomRent" style="font-weight: 600;">₹0.00</td>
+                    </tr>
 
-            <div class="bill-row" style="color: #b45309;">
-                <span>Add: Previous Due:</span>
-                <span id="lblPrevDue">+ ₹0.00</span>
-            </div>
+                    <tr>
+                        <td style="padding: 10px;">
+                            <div class="bilingual-label" style="margin-bottom: 6px;">
+                                Electricity Charges
+                                <span>बिजली का खर्च</span>
+                            </div>
+                            
+                            <table class="meter-table">
+                                <tr>
+                                    <td>Current Reading (वर्तमान):</td>
+                                    <td class="text-center" id="lblCurrReading" style="font-weight: 600;">0</td>
+                                </tr>
+                                <tr>
+                                    <td>Previous Reading (पिछला):</td>
+                                    <td class="text-center" id="lblPrevReading" style="font-weight: 600;">0</td>
+                                </tr>
+                                <tr>
+                                    <td>Net Consumed (कुल यूनिट):</td>
+                                    <td class="text-center" id="lblTotalUnits" style="font-weight: 600; background: #f8fafc;">0 Units</td>
+                                </tr>
+                                <tr>
+                                    <td>Rate per Unit (दर):</td>
+                                    <td class="text-center" id="lblUnitRate">₹0.00 / Unit</td>
+                                </tr>
+                            </table>
+                        </td>
+                        <td class="text-right" id="lblElectricCharges" style="font-weight: 600; vertical-align: top; padding-top: 12px;">
+                            ₹0.00
+                        </td>
+                    </tr>
 
-            <div class="bill-row total">
-                <span>Total Payable:</span>
-                <span id="lblTotal">₹0.00</span>
-            </div>
+                    <tr>
+                        <td class="bilingual-label">
+                            Add: Arrears / Previous Due
+                            <span>जोड़ें: पिछला बकाया राशि</span>
+                        </td>
+                        <td class="text-right" id="lblPrevDue" style="color: #000; font-weight: 600;">+ ₹0.00</td>
+                    </tr>
+
+                    <tr>
+                        <td class="bilingual-label">
+                            Less: Advance / Adjustment
+                            <span>घटाएं: अग्रिम भुगतान या तालमेल</span>
+                        </td>
+                        <td class="text-right" id="lblAdjustment" style="color: #000; font-weight: 600;">- ₹0.00</td>
+                    </tr>
+
+                    <tr class="total-row">
+                        <td class="bilingual-label" style="font-size: 16px;">
+                            TOTAL PAYABLE
+                            <span style="font-size: 13px; font-weight: bold; color: #000;">कुल देय राशि</span>
+                        </td>
+                        <td class="text-right" id="lblTotal">₹0.00</td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
         
         <button class="download-btn" onclick="downloadBillImage()">Download Bill Image</button>
     </div>
 
     <script>
-        // Set current date on load
+        // Formats visual date nicely inside the receipt
         document.getElementById('billDate').innerText = "Date: " + new Date().toLocaleDateString('en-IN', {
             year: 'numeric',
-            month: 'long',
+            month: 'short',
             day: 'numeric'
         });
 
         function generateBill() {
-            // Get values from inputs
-            const name = document.getElementById('tenantName').value;
+            const name = document.getElementById('tenantName').value || 'Tenant';
             const roomRent = parseFloat(document.getElementById('roomRent').value) || 0;
             const ratePerUnit = parseFloat(document.getElementById('ratePerUnit').value) || 0;
             const prevReading = parseFloat(document.getElementById('prevReading').value) || 0;
@@ -261,23 +367,22 @@
             const adjustment = parseFloat(document.getElementById('adjustment').value) || 0;
             const prevDue = parseFloat(document.getElementById('prevDue').value) || 0;
 
-            // Math Logic
             const totalUnits = Math.max(0, currReading - prevReading);
             const electricityCharges = totalUnits * ratePerUnit;
-            
-            // Formula: Rent + Elec - Adjustment + PrevDue
             const totalPayable = roomRent + electricityCharges - adjustment + prevDue;
 
-            // Update UI Receipt
             document.getElementById('lblTenantName').innerText = name;
             document.getElementById('lblRoomRent').innerText = "₹" + roomRent.toFixed(2);
+            
+            document.getElementById('lblPrevReading').innerText = prevReading;
+            document.getElementById('lblCurrReading').innerText = currReading;
+            document.getElementById('lblTotalUnits').innerText = totalUnits + " Units";
+            document.getElementById('lblUnitRate').innerText = "₹" + ratePerUnit.toFixed(2);
             document.getElementById('lblElectricCharges').innerText = "₹" + electricityCharges.toFixed(2);
             
-            // Human-friendly description string
-            document.getElementById('lblElectricDetails').innerText = `(${totalUnits} units consumed from ${prevReading} to ${currReading} @ ₹${ratePerUnit}/unit)`;
-            
-            document.getElementById('lblAdjustment').innerText = "- ₹" + adjustment.toFixed(2);
             document.getElementById('lblPrevDue').innerText = "+ ₹" + prevDue.toFixed(2);
+            document.getElementById('lblAdjustment').innerText = "- ₹" + adjustment.toFixed(2);
+            
             document.getElementById('lblTotal').innerText = "₹" + totalPayable.toFixed(2);
         }
 
@@ -285,20 +390,30 @@
             const billElement = document.getElementById('billReceipt');
             const tenantName = document.getElementById('tenantName').value || 'Tenant';
             
-            // Generate canvas with higher scale for sharp crisp rendering text
+            // Generate clean timestamp for file title (YYYY-MM-DD)
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            const formattedDate = `${day}-${month}-${year}`;
+            
+            // Clean up name by converting spaces to underscores
+            const safeName = tenantName.trim().replace(/\s+/g, '_');
+
             html2canvas(billElement, {
                 scale: 3, 
                 useCORS: true,
                 backgroundColor: "#ffffff"
             }).then(canvas => {
                 const link = document.createElement('a');
-                link.download = `${tenantName.replace(/\s+/g, '_')}_Bill.png`;
+                // Set the exact naming convention: Name_Date.png
+                link.download = `${safeName}_${formattedDate}.png`;
                 link.href = canvas.toDataURL('image/png');
                 link.click();
             });
         }
 
-        // Initialize on first run
+        // Initialize immediately
         generateBill();
     </script>
 </body>
