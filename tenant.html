@@ -13,6 +13,8 @@
             --card-bg: #ffffff;
             --text: #0f172a;
             --border: #94a3b8;
+            --danger: #dc2626;
+            --danger-hover: #991b1b;
         }
 
         body {
@@ -88,6 +90,56 @@
 
         button:hover {
             background-color: var(--primary-hover);
+        }
+
+        /* Management Panel Styling */
+        .tenant-list {
+            margin-top: 15px;
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 5px;
+        }
+
+        .tenant-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px;
+            border-bottom: 1px solid #e2e8f0;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.2s;
+        }
+
+        .tenant-item:last-child {
+            border-bottom: none;
+        }
+
+        .tenant-item:hover {
+            background-color: #f8fafc;
+        }
+
+        .tenant-name-click {
+            flex-grow: 1;
+            font-weight: 500;
+        }
+
+        .delete-btn {
+            background-color: var(--danger);
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            width: auto;
+            margin-top: 0;
+        }
+
+        .delete-btn:hover {
+            background-color: var(--danger-hover);
         }
 
         /* Traditional Bill Box Styling */
@@ -254,13 +306,19 @@
             <input type="number" id="prevDue">
         </div>
         <button onclick="generateBill()">Calculate & Update Receipt</button>
+        
+        <hr style="margin: 25px 0 15px 0; border: 0; border-top: 1px solid var(--border);">
+        
+        <h2>Tenant Directory</h2>
+        <div class="tenant-list" id="tenantList">
+            </div>
     </div>
 
     <div id="bill-preview-container">
         <div class="bill-card" id="billReceipt">
             <div class="bill-header">
-                <h3>RENT & ELECTRICITY RECEIPT</h3>
-                <p>किराया एवं बिजली बिल रसीद</p>
+                <h3>RENT & ELECTRICITY BILL</h3>
+                <p>किराया एवं बिजली बिल</p>
             </div>
             
             <div class="bill-meta-row">
@@ -323,7 +381,7 @@
                     <tr>
                         <td class="bilingual-label">
                             Add: Arrears / Previous Due
-                            <span>जोड़ें: पिछला बकाया राशि</span>
+                            <span>जोड़ें: पिछला बकाया राशि</span>
                         </td>
                         <td class="text-right" id="lblPrevDue" style="color: #000; font-weight: 600;">+ ₹0.00</td>
                     </tr>
@@ -384,6 +442,11 @@
             document.getElementById('lblAdjustment').innerText = "- ₹" + adjustment.toFixed(2);
             
             document.getElementById('lblTotal').innerText = "₹" + totalPayable.toFixed(2);
+
+            // SAVE/UPDATE DATA STORE: Save current profile and update next sequence's previous reading
+            if(document.getElementById('tenantName').value.trim() !== "") {
+                saveTenantData(name, roomRent, ratePerUnit, currReading, adjustment, prevDue);
+            }
         }
 
         function downloadBillImage() {
@@ -413,7 +476,94 @@
             });
         }
 
-        // Initialize immediately
+        // --- NEW STORAGE & MANAGEMENT FUNCTIONS ---
+        
+        // Fetch or create storage dictionary
+        function getStorageMap() {
+            return JSON.parse(localStorage.getItem('tenantBillSystem') || '{}');
+        }
+
+        // Save layout configuration to localStorage mapping
+        function saveTenantData(name, rent, rate, currentAsNextPrevious, adjustment, prevDue) {
+            const store = getStorageMap();
+            store[name.trim()] = {
+                roomRent: rent,
+                ratePerUnit: rate,
+                prevReading: currentAsNextPrevious, // Shifted calculation rule applied here
+                adjustment: adjustment,
+                prevDue: prevDue
+            };
+            localStorage.setItem('tenantBillSystem', JSON.stringify(store));
+            renderTenantDirectory();
+        }
+
+        // Draw interactive list rows from localStorage dynamic entries
+        function renderTenantDirectory() {
+            const store = getStorageMap();
+            const listContainer = document.getElementById('tenantList');
+            listContainer.innerHTML = '';
+            
+            const keys = Object.keys(store);
+            if(keys.length === 0) {
+                listContainer.innerHTML = '<div style="padding: 10px; font-size:13px; color:#64748b; text-align:center;">No saved tenants found. Details save automatically when updating billing receipt.</div>';
+                return;
+            }
+
+            keys.forEach(name => {
+                const div = document.createElement('div');
+                div.className = 'tenant-item';
+                
+                const nameSpan = document.createElement('span');
+                nameSpan.className = 'tenant-name-click';
+                nameSpan.innerText = name;
+                nameSpan.onclick = function() { loadTenantData(name); };
+
+                const delBtn = document.createElement('button');
+                delBtn.className = 'delete-btn';
+                delBtn.innerText = 'Delete';
+                delBtn.onclick = function(e) {
+                    e.stopPropagation(); // Avoid loading details when attempting layout deletion
+                    deleteTenant(name);
+                };
+
+                div.appendChild(nameSpan);
+                div.appendChild(delBtn);
+                listContainer.appendChild(div);
+            });
+        }
+
+        // Populates elements cleanly when row click event registers
+        function loadTenantData(name) {
+            const store = getStorageMap();
+            const tenant = store[name];
+            if(tenant) {
+                document.getElementById('tenantName').value = name;
+                document.getElementById('roomRent').value = tenant.roomRent;
+                document.getElementById('ratePerUnit').value = tenant.ratePerUnit;
+                document.getElementById('prevReading').value = tenant.prevReading;
+                
+                // Clear out volatile data fields to avoid bad carryover states
+                document.getElementById('currReading').value = '';
+                document.getElementById('adjustment').value = tenant.adjustment || 0;
+                document.getElementById('prevDue').value = tenant.prevDue || 0;
+                
+                // Refresh preview context matching active updates
+                generateBill();
+            }
+        }
+
+        // Drops entry element safely from map list matching chosen value key
+        function deleteTenant(name) {
+            if(confirm(`Are you sure you want to remove ${name} from records?`)) {
+                const store = getStorageMap();
+                delete store[name];
+                localStorage.setItem('tenantBillSystem', JSON.stringify(store));
+                renderTenantDirectory();
+            }
+        }
+
+        // Initial setup initialization logic hooks
+        renderTenantDirectory();
         generateBill();
     </script>
 </body>
