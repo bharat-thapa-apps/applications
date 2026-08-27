@@ -175,8 +175,12 @@
       position: relative;
     }
 
-    .manifest-transport {
+    .manifest-transport-yes {
       grid-template-columns: 3fr 2.5fr 2.5fr auto;
+    }
+
+    .manifest-transport-no {
+      grid-template-columns: 5fr 4fr auto;
     }
 
     .manifest-payment {
@@ -304,9 +308,16 @@
       <div id="setupForm">
         <div class="form-group">
           <label for="manifestType">Manifest Type</label>
-          <select id="manifestType" onchange="resetStudentSection()">
+          <select id="manifestType" onchange="toggleDroppingField(); resetStudentSection();">
             <option value="transport">Full Info (Name, Contact, Drop Point)</option>
             <option value="payment">Payment Receiving List (Name & Signature Space)</option>
+          </select>
+        </div>
+        <div class="form-group" id="droppingOptionGroup">
+          <label for="enableDropping">Include Dropping Point?</label>
+          <select id="enableDropping" onchange="resetStudentSection()">
+            <option value="yes">Yes</option>
+            <option value="no">No</option>
           </select>
         </div>
         <div class="form-group">
@@ -389,7 +400,18 @@
 
     window.onload = function () {
       updateGlobalDatalist();
+      toggleDroppingField();
     };
+
+    function toggleDroppingField() {
+      const type = document.getElementById('manifestType').value;
+      const droppingGroup = document.getElementById('droppingOptionGroup');
+      if (type === 'payment') {
+        droppingGroup.style.display = 'none';
+      } else {
+        droppingGroup.style.display = 'block';
+      }
+    }
 
     function switchTab(tabName) {
       document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
@@ -552,19 +574,32 @@
     }
 
     function createRowElement(type) {
+      const enableDropping = document.getElementById('enableDropping').value === 'yes';
       const row = document.createElement('div');
-      row.className = `student-row manifest-${type}`;
 
       if (type === 'transport') {
-        row.innerHTML = `
-          <div class="autocomplete-wrapper">
-            <input type="text" class="stud-name" list="studentsDataset" placeholder="Name" oninput="autoFillRowData(this)" required>
-          </div>
-          <input type="text" class="stud-contact" placeholder="Contact" required>
-          <input type="text" class="stud-dropping" placeholder="Dropping" required>
-          <button type="button" class="btn-danger" style="padding: 10px;" title="Delete Row" onclick="this.parentElement.remove()">X</button>
-        `;
+        if (enableDropping) {
+          row.className = 'student-row manifest-transport-yes';
+          row.innerHTML = `
+            <div class="autocomplete-wrapper">
+              <input type="text" class="stud-name" list="studentsDataset" placeholder="Name" oninput="autoFillRowData(this)" required>
+            </div>
+            <input type="text" class="stud-contact" placeholder="Contact" required>
+            <input type="text" class="stud-dropping" placeholder="Dropping" required>
+            <button type="button" class="btn-danger" style="padding: 10px;" title="Delete Row" onclick="this.parentElement.remove()">X</button>
+          `;
+        } else {
+          row.className = 'student-row manifest-transport-no';
+          row.innerHTML = `
+            <div class="autocomplete-wrapper">
+              <input type="text" class="stud-name" list="studentsDataset" placeholder="Name" oninput="autoFillRowData(this)" required>
+            </div>
+            <input type="text" class="stud-contact" placeholder="Contact" required>
+            <button type="button" class="btn-danger" style="padding: 10px;" title="Delete Row" onclick="this.parentElement.remove()">X</button>
+          `;
+        }
       } else {
+        row.className = 'student-row manifest-payment';
         row.innerHTML = `
           <div class="autocomplete-wrapper">
             <input type="text" class="stud-name" list="studentsDataset" placeholder="Name" oninput="autoFillRowData(this)" required>
@@ -578,6 +613,7 @@
     function generateStudentFields() {
       const count = parseInt(document.getElementById('totalStudents').value);
       const type = document.getElementById('manifestType').value;
+      const enableDropping = document.getElementById('enableDropping').value === 'yes';
 
       if (!count || count < 1) {
         alert('Please enter a valid number of students.');
@@ -588,16 +624,26 @@
       const container = document.getElementById('dynamicRowsContainer');
 
       container.innerHTML = '';
-      headerContainer.className = `student-row manifest-${type}`;
 
       if (type === 'transport') {
-        headerContainer.innerHTML = `
-          <div>Student Name</div>
-          <div>Contact</div>
-          <div>Dropping Point</div>
-          <div style="width:32px"></div>
-        `;
+        if (enableDropping) {
+          headerContainer.className = 'student-row manifest-transport-yes';
+          headerContainer.innerHTML = `
+            <div>Student Name</div>
+            <div>Contact</div>
+            <div>Dropping Point</div>
+            <div style="width:32px"></div>
+          `;
+        } else {
+          headerContainer.className = 'student-row manifest-transport-no';
+          headerContainer.innerHTML = `
+            <div>Student Name</div>
+            <div>Contact</div>
+            <div style="width:32px"></div>
+          `;
+        }
       } else {
+        headerContainer.className = 'student-row manifest-payment';
         headerContainer.innerHTML = `
           <div>Student Name</div>
           <div style="width:32px"></div>
@@ -641,6 +687,7 @@
       });
 
       const type = document.getElementById('manifestType').value;
+      const enableDropping = document.getElementById('enableDropping').value === 'yes';
       const hotelName = (document.getElementById('hotelName').value || 'N/A').toUpperCase();
       const rawDate = document.getElementById('date').value;
       const rawTime = document.getElementById('time').value;
@@ -699,20 +746,35 @@
       let tableHeaders = [];
 
       if (type === 'transport') {
-        tableHeaders = [['S.NO', 'NAME', 'CONTACT', 'DROPPING']];
         const contacts = document.querySelectorAll('.stud-contact');
-        const droppings = document.querySelectorAll('.stud-dropping');
 
-        names.forEach((nameInput, index) => {
-          if (nameInput.value || contacts[index].value || droppings[index].value) {
-            tableBodyData.push([
-              tableBodyData.length + 1,
-              nameInput.value || '',
-              contacts[index].value || '',
-              droppings[index].value || ''
-            ]);
-          }
-        });
+        if (enableDropping) {
+          tableHeaders = [['S.NO', 'NAME', 'CONTACT', 'DROPPING']];
+          const droppings = document.querySelectorAll('.stud-dropping');
+
+          names.forEach((nameInput, index) => {
+            if (nameInput.value || (contacts[index] && contacts[index].value) || (droppings[index] && droppings[index].value)) {
+              tableBodyData.push([
+                tableBodyData.length + 1,
+                nameInput.value || '',
+                contacts[index] ? contacts[index].value || '' : '',
+                droppings[index] ? droppings[index].value || '' : ''
+              ]);
+            }
+          });
+        } else {
+          tableHeaders = [['S.NO', 'NAME', 'CONTACT']];
+
+          names.forEach((nameInput, index) => {
+            if (nameInput.value || (contacts[index] && contacts[index].value)) {
+              tableBodyData.push([
+                tableBodyData.length + 1,
+                nameInput.value || '',
+                contacts[index] ? contacts[index].value || '' : ''
+              ]);
+            }
+          });
+        }
       } else {
         tableHeaders = [['S.NO', 'STUDENT NAME', 'SIGNATURE']];
         names.forEach((nameInput) => {
@@ -756,12 +818,20 @@
         };
       } else {
         autoTableOptions.styles.cellPadding = 1;
-        autoTableOptions.columnStyles = {};
+        if (!enableDropping) {
+          autoTableOptions.columnStyles = {
+            0: { cellWidth: 25, halign: 'center' }, // S.No
+            1: { cellWidth: 80, halign: 'center' }, // Name
+            2: { cellWidth: 75, halign: 'center' }  // Contact
+          };
+        } else {
+          autoTableOptions.columnStyles = {};
+        }
       }
 
       doc.autoTable(autoTableOptions);
 
-      const fileTypeSuffix = type === 'payment' ? 'Payment_Receiving_List' : 'Dropping_Manifest';
+      const fileTypeSuffix = type === 'payment' ? 'Payment_Receiving_List' : (enableDropping ? 'Dropping_Manifest' : 'Contact_Manifest');
       doc.save(`${hotelName.replace(/\s+/g, '_')}_${fileTypeSuffix}_${formattedDate}.pdf`);
     }
   </script>
