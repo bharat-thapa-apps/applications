@@ -1,634 +1,642 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tenant Bill Generator</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <style>
-        :root {
-            --primary: #1e3a8a;
-            --primary-hover: #172554;
-            --bg: #f1f5f9;
-            --card-bg: #ffffff;
-            --text: #0f172a;
-            --border: #94a3b8;
-            --danger: #dc2626;
-            --danger-hover: #991b1b;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tenant Bill Generator</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <style>
+    :root {
+      --primary: #1e3a8a;
+      --primary-hover: #172554;
+      --bg: #f1f5f9;
+      --card-bg: #ffffff;
+      --text: #0f172a;
+      --border: #94a3b8;
+      --danger: #dc2626;
+      --danger-hover: #991b1b;
+    }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            margin: 0;
-            padding: 40px 20px;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            gap: 40px;
-            flex-wrap: wrap;
-        }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 40px 20px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      gap: 40px;
+      flex-wrap: wrap;
+    }
 
-        .container {
-            background: var(--card-bg);
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-            width: 100%;
-            max-width: 420px;
-        }
+    .container {
+      background: var(--card-bg);
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+      width: 100%;
+      max-width: 420px;
+    }
 
-        h2 {
-            margin-top: 0;
-            margin-bottom: 24px;
-            color: var(--primary);
-            font-size: 22px;
-            border-bottom: 2px solid var(--primary);
-            padding-bottom: 10px;
-        }
+    h2 {
+      margin-top: 0;
+      margin-bottom: 24px;
+      color: var(--primary);
+      font-size: 22px;
+      border-bottom: 2px solid var(--primary);
+      padding-bottom: 10px;
+    }
 
-        .form-group {
-            margin-bottom: 14px;
-        }
+    .form-group {
+      margin-bottom: 14px;
+    }
 
-        label {
-            display: block;
-            margin-bottom: 4px;
-            font-weight: 600;
-            font-size: 14px;
-            color: #334155;
-        }
+    label {
+      display: block;
+      margin-bottom: 4px;
+      font-weight: 600;
+      font-size: 14px;
+      color: #334155;
+    }
 
-        input {
-            width: 100%;
-            padding: 8px 12px;
-            border: 1px solid var(--border);
-            border-radius: 4px;
-            box-sizing: border-box;
-            font-size: 14px;
-        }
+    input {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      box-sizing: border-box;
+      font-size: 14px;
+    }
 
-        input:focus {
-            outline: none;
-            border-color: var(--primary);
-        }
+    input:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
 
-        button {
-            width: 100%;
-            background-color: var(--primary);
-            color: white;
-            border: none;
-            padding: 12px;
-            border-radius: 4px;
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background-color 0.2s;
-            margin-top: 10px;
-        }
+    button {
+      width: 100%;
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      padding: 12px;
+      border-radius: 4px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      margin-top: 10px;
+    }
 
-        button:hover {
-            background-color: var(--primary-hover);
-        }
+    button:hover {
+      background-color: var(--primary-hover);
+    }
 
-        /* Management Panel Styling */
-        .tenant-list {
-            margin-top: 15px;
-            max-height: 200px;
-            overflow-y: auto;
-            border: 1px solid var(--border);
-            border-radius: 4px;
-            padding: 5px;
-        }
+    /* Management Panel Styling */
+    .tenant-list {
+      margin-top: 15px;
+      max-height: 200px;
+      overflow-y: auto;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 5px;
+    }
 
-        .tenant-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px;
-            border-bottom: 1px solid #e2e8f0;
-            cursor: pointer;
-            font-size: 14px;
-            transition: background-color 0.2s;
-        }
+    .tenant-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px;
+      border-bottom: 1px solid #e2e8f0;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background-color 0.2s;
+    }
 
-        .tenant-item:last-child {
-            border-bottom: none;
-        }
+    .tenant-item:last-child {
+      border-bottom: none;
+    }
 
-        .tenant-item:hover {
-            background-color: #f8fafc;
-        }
+    .tenant-item:hover {
+      background-color: #f8fafc;
+    }
 
-        .tenant-name-click {
-            flex-grow: 1;
-            font-weight: 500;
-        }
+    .tenant-name-click {
+      flex-grow: 1;
+      font-weight: 500;
+    }
 
-        .delete-btn {
-            background-color: var(--danger);
-            color: white;
-            border: none;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 12px;
-            cursor: pointer;
-            width: auto;
-            margin-top: 0;
-        }
+    .delete-btn {
+      background-color: var(--danger);
+      color: white;
+      border: none;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      cursor: pointer;
+      width: auto;
+      margin-top: 0;
+    }
 
-        .delete-btn:hover {
-            background-color: var(--danger-hover);
-        }
+    .delete-btn:hover {
+      background-color: var(--danger-hover);
+    }
 
-        /* Traditional Bill Box Styling */
-        #bill-preview-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 20px;
-        }
+    /* Traditional Bill Box Styling */
+    #bill-preview-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
 
-        .bill-card {
-            background: #ffffff;
-            width: 450px;
-            padding: 30px;
-            border: 2px solid #000000;
-            box-sizing: border-box;
-            position: relative;
-        }
+    .bill-card {
+      background: #ffffff;
+      width: 450px;
+      padding: 30px;
+      border: 2px solid #000000;
+      box-sizing: border-box;
+      position: relative;
+    }
 
-        /* Traditional double border edge detail */
-        .bill-card::before {
-            content: '';
-            position: absolute;
-            top: 3px; left: 3px; right: 3px; bottom: 3px;
-            border: 1px solid #000000;
-            pointer-events: none;
-        }
+    /* Traditional double border edge detail */
+    .bill-card::before {
+      content: '';
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      right: 3px;
+      bottom: 3px;
+      border: 1px solid #000000;
+      pointer-events: none;
+    }
 
-        .bill-header {
-            text-align: center;
-            border-bottom: 2px solid #000000;
-            padding-bottom: 10px;
-            margin-bottom: 15px;
-        }
+    .bill-header {
+      text-align: center;
+      border-bottom: 2px solid #000000;
+      padding-bottom: 10px;
+      margin-bottom: 15px;
+    }
 
-        .bill-header h3 {
-            margin: 0;
-            font-size: 24px;
-            letter-spacing: 2px;
-            color: #000000;
-            font-weight: 800;
-        }
+    .bill-header h3 {
+      margin: 0;
+      font-size: 24px;
+      letter-spacing: 2px;
+      color: #000000;
+      font-weight: 800;
+    }
 
-        .bill-header p {
-            margin: 5px 0 0 0;
-            font-size: 14px;
-            color: #000000;
-            font-weight: 600;
-        }
+    .bill-header p {
+      margin: 5px 0 0 0;
+      font-size: 14px;
+      color: #000000;
+      font-weight: 600;
+    }
 
-        .bill-meta-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 15px;
-            font-size: 14px;
-            border-bottom: 1px dashed #000000;
-            padding-bottom: 8px;
-        }
+    .bill-meta-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 15px;
+      font-size: 14px;
+      border-bottom: 1px dashed #000000;
+      padding-bottom: 8px;
+    }
 
-        .bilingual-label {
-            font-size: 14px;
-            font-weight: 700;
-            color: #000000;
-        }
-        
-        .bilingual-label span {
-            font-size: 11px;
-            font-weight: normal;
-            display: block;
-            color: #475569;
-            margin-top: -2px;
-        }
+    .bilingual-label {
+      font-size: 14px;
+      font-weight: 700;
+      color: #000000;
+    }
 
-        /* Traditional Ledger Table Layout */
-        .traditional-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
+    .bilingual-label span {
+      font-size: 11px;
+      font-weight: normal;
+      display: block;
+      color: #475569;
+      margin-top: -2px;
+    }
 
-        .traditional-table th, 
-        .traditional-table td {
-            border: 1px solid #000000;
-            padding: 8px 10px;
-            text-align: left;
-            vertical-align: middle;
-            font-size: 14px;
-        }
+    /* Traditional Ledger Table Layout */
+    .traditional-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
 
-        .traditional-table th {
-            background-color: #f8fafc;
-            font-weight: bold;
-            text-align: center;
-        }
+    .traditional-table th,
+    .traditional-table td {
+      border: 1px solid #000000;
+      padding: 8px 10px;
+      text-align: left;
+      vertical-align: middle;
+      font-size: 14px;
+    }
 
-        .text-right {
-            text-align: right !important;
-        }
+    .traditional-table th {
+      background-color: #f8fafc;
+      font-weight: bold;
+      text-align: center;
+    }
 
-        .text-center {
-            text-align: center !important;
-        }
+    .text-right {
+      text-align: right !important;
+    }
 
-        /* Inner meter reading table layout */
-        .meter-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 4px 0;
-        }
-        .meter-table td {
-            border: 1px dotted #000000;
-            font-size: 12px;
-            padding: 4px 6px;
-        }
+    .text-center {
+      text-align: center !important;
+    }
 
-        .total-row td {
-            font-size: 18px;
-            font-weight: bold;
-            background-color: #f8fafc;
-            border-top: 2px double #000000;
-            border-bottom: 2px double #000000;
-        }
+    /* Inner meter reading table layout */
+    .meter-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 4px 0;
+    }
 
-        .action-buttons {
-            display: flex;
-            gap: 12px;
-            width: 100%;
-        }
+    .meter-table td {
+      border: 1px dotted #000000;
+      font-size: 12px;
+      padding: 4px 6px;
+    }
 
-        .download-btn {
-            background-color: #16a34a;
-            border-radius: 4px;
-            margin-top: 0;
-        }
+    .total-row td {
+      font-size: 18px;
+      font-weight: bold;
+      background-color: #f8fafc;
+      border-top: 2px double #000000;
+      border-bottom: 2px double #000000;
+    }
 
-        .download-btn:hover {
-            background-color: #15803d;
-        }
+    .action-buttons {
+      display: flex;
+      gap: 12px;
+      width: 100%;
+    }
 
-        .share-btn {
-            background-color: #0284c7;
-            border-radius: 4px;
-            margin-top: 0;
-        }
+    .download-btn {
+      background-color: #16a34a;
+      border-radius: 4px;
+      margin-top: 0;
+    }
 
-        .share-btn:hover {
-            background-color: #0369a1;
-        }
-    </style>
+    .download-btn:hover {
+      background-color: #15803d;
+    }
+
+    .share-btn {
+      background-color: #0284c7;
+      border-radius: 4px;
+      margin-top: 0;
+    }
+
+    .share-btn:hover {
+      background-color: #0369a1;
+    }
+  </style>
 </head>
+
 <body>
 
-    <div class="container">
-        <h2>Bill Input Panel</h2>
-        <div class="form-group">
-            <label for="tenantName">Tenant Name</label>
-            <input type="text" id="tenantName">
+  <div class="container">
+    <h2>Bill Input Panel</h2>
+    <div class="form-group">
+      <label for="tenantName">Tenant Name</label>
+      <input type="text" id="tenantName">
+    </div>
+    <div class="form-group">
+      <label for="roomRent">Room Rent (₹)</label>
+      <input type="number" id="roomRent">
+    </div>
+    <div class="form-group">
+      <label for="ratePerUnit">Electricity Rate (₹/Unit)</label>
+      <input type="number" id="ratePerUnit">
+    </div>
+    <div class="form-group">
+      <label for="prevReading">Previous Unit Reading</label>
+      <input type="number" id="prevReading">
+    </div>
+    <div class="form-group">
+      <label for="currReading">Current Unit Reading</label>
+      <input type="number" id="currReading">
+    </div>
+    <div class="form-group">
+      <label for="adjustment">Adjustment / Advance (Deducted - ₹)</label>
+      <input type="number" id="adjustment">
+    </div>
+    <div class="form-group">
+      <label for="prevDue">Previous Due (Added + ₹)</label>
+      <input type="number" id="prevDue">
+    </div>
+    <button onclick="generateBill()">Calculate & Update Receipt</button>
+
+    <hr style="margin: 25px 0 15px 0; border: 0; border-top: 1px solid var(--border);">
+
+    <h2>Tenant Directory</h2>
+    <div class="tenant-list" id="tenantList"></div>
+  </div>
+
+  <div id="bill-preview-container">
+    <div class="bill-card" id="billReceipt">
+      <div class="bill-header">
+        <h3>RENT & ELECTRICITY BILL</h3>
+        <p>किराया एवं बिजली बिल</p>
+      </div>
+
+      <div class="bill-meta-row">
+        <div>
+          <strong>Name / नाम:</strong>
+          <span id="lblTenantName" style="font-weight: 600; padding-left: 5px;">--</span>
         </div>
-        <div class="form-group">
-            <label for="roomRent">Room Rent (₹)</label>
-            <input type="number" id="roomRent">
+        <div>
+          <span id="billDate" style="font-weight: 600;">Date: --/--/----</span>
         </div>
-        <div class="form-group">
-            <label for="ratePerUnit">Electricity Rate (₹/Unit)</label>
-            <input type="number" id="ratePerUnit">
-        </div>
-        <div class="form-group">
-            <label for="prevReading">Previous Unit Reading</label>
-            <input type="number" id="prevReading">
-        </div>
-        <div class="form-group">
-            <label for="currReading">Current Unit Reading</label>
-            <input type="number" id="currReading">
-        </div>
-        <div class="form-group">
-            <label for="adjustment">Adjustment / Advance (Deducted - ₹)</label>
-            <input type="number" id="adjustment">
-        </div>
-        <div class="form-group">
-            <label for="prevDue">Previous Due (Added + ₹)</label>
-            <input type="number" id="prevDue">
-        </div>
-        <button onclick="generateBill()">Calculate & Update Receipt</button>
-        
-        <hr style="margin: 25px 0 15px 0; border: 0; border-top: 1px solid var(--border);">
-        
-        <h2>Tenant Directory</h2>
-        <div class="tenant-list" id="tenantList"></div>
+      </div>
+
+      <table class="traditional-table">
+        <thead>
+          <tr>
+            <th style="width: 65%;">Description / विवरण</th>
+            <th style="width: 35%;" class="text-right">Amount / राशि (₹)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="bilingual-label">
+              Room Rent
+              <span>कमरे का किराया</span>
+            </td>
+            <td class="text-right" id="lblRoomRent" style="font-weight: 600;">₹0.00</td>
+          </tr>
+
+          <tr>
+            <td style="padding: 10px;">
+              <div class="bilingual-label" style="margin-bottom: 6px;">
+                Electricity Charges
+                <span>बिजली का खर्च</span>
+              </div>
+
+              <table class="meter-table">
+                <tr>
+                  <td>Current Reading (वर्तमान):</td>
+                  <td class="text-center" id="lblCurrReading" style="font-weight: 600;">0</td>
+                </tr>
+                <tr>
+                  <td>Previous Reading (पिछला):</td>
+                  <td class="text-center" id="lblPrevReading" style="font-weight: 600;">0</td>
+                </tr>
+                <tr>
+                  <td>Net Consumed (कुल यूनिट):</td>
+                  <td class="text-center" id="lblTotalUnits" style="font-weight: 600; background: #f8fafc;">0 Units</td>
+                </tr>
+                <tr>
+                  <td>Rate per Unit (दर):</td>
+                  <td class="text-center" id="lblUnitRate">₹0.00 / Unit</td>
+                </tr>
+              </table>
+            </td>
+            <td class="text-right" id="lblElectricCharges"
+              style="font-weight: 600; vertical-align: top; padding-top: 12px;">
+              ₹0.00
+            </td>
+          </tr>
+
+          <tr>
+            <td class="bilingual-label">
+              Add: Arrears / Previous Due
+              <span>जोड़ें: पिछला बकाया राशि</span>
+            </td>
+            <td class="text-right" id="lblPrevDue" style="color: #000; font-weight: 600;">+ ₹0.00</td>
+          </tr>
+
+          <tr>
+            <td class="bilingual-label">
+              Less: Advance / Adjustment
+              <span>घटाएं: अग्रिम भुगतान या तालमेल</span>
+            </td>
+            <td class="text-right" id="lblAdjustment" style="color: #000; font-weight: 600;">- ₹0.00</td>
+          </tr>
+
+          <tr class="total-row">
+            <td class="bilingual-label" style="font-size: 16px;">
+              TOTAL PAYABLE
+              <span style="font-size: 13px; font-weight: bold; color: #000;">कुल देय राशि</span>
+            </td>
+            <td class="text-right" id="lblTotal">₹0.00</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
 
-    <div id="bill-preview-container">
-        <div class="bill-card" id="billReceipt">
-            <div class="bill-header">
-                <h3>RENT & ELECTRICITY BILL</h3>
-                <p>किराया एवं बिजली बिल</p>
-            </div>
-            
-            <div class="bill-meta-row">
-                <div>
-                    <strong>Name / नाम:</strong> 
-                    <span id="lblTenantName" style="font-weight: 600; padding-left: 5px;">--</span>
-                </div>
-                <div>
-                    <span id="billDate" style="font-weight: 600;">Date: --/--/----</span>
-                </div>
-            </div>
-
-            <table class="traditional-table">
-                <thead>
-                    <tr>
-                        <th style="width: 65%;">Description / विवरण</th>
-                        <th style="width: 35%;" class="text-right">Amount / राशि (₹)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td class="bilingual-label">
-                            Room Rent 
-                            <span>कमरे का किराया</span>
-                        </td>
-                        <td class="text-right" id="lblRoomRent" style="font-weight: 600;">₹0.00</td>
-                    </tr>
-
-                    <tr>
-                        <td style="padding: 10px;">
-                            <div class="bilingual-label" style="margin-bottom: 6px;">
-                                Electricity Charges
-                                <span>बिजली का खर्च</span>
-                            </div>
-                            
-                            <table class="meter-table">
-                                <tr>
-                                    <td>Current Reading (वर्तमान):</td>
-                                    <td class="text-center" id="lblCurrReading" style="font-weight: 600;">0</td>
-                                </tr>
-                                <tr>
-                                    <td>Previous Reading (पिछला):</td>
-                                    <td class="text-center" id="lblPrevReading" style="font-weight: 600;">0</td>
-                                </tr>
-                                <tr>
-                                    <td>Net Consumed (कुल यूनिट):</td>
-                                    <td class="text-center" id="lblTotalUnits" style="font-weight: 600; background: #f8fafc;">0 Units</td>
-                                </tr>
-                                <tr>
-                                    <td>Rate per Unit (दर):</td>
-                                    <td class="text-center" id="lblUnitRate">₹0.00 / Unit</td>
-                                </tr>
-                            </table>
-                        </td>
-                        <td class="text-right" id="lblElectricCharges" style="font-weight: 600; vertical-align: top; padding-top: 12px;">
-                            ₹0.00
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td class="bilingual-label">
-                            Add: Arrears / Previous Due
-                            <span>जोड़ें: पिछला बकाया राशि</span>
-                        </td>
-                        <td class="text-right" id="lblPrevDue" style="color: #000; font-weight: 600;">+ ₹0.00</td>
-                    </tr>
-
-                    <tr>
-                        <td class="bilingual-label">
-                            Less: Advance / Adjustment
-                            <span>घटाएं: अग्रिम भुगतान या तालमेल</span>
-                        </td>
-                        <td class="text-right" id="lblAdjustment" style="color: #000; font-weight: 600;">- ₹0.00</td>
-                    </tr>
-
-                    <tr class="total-row">
-                        <td class="bilingual-label" style="font-size: 16px;">
-                            TOTAL PAYABLE
-                            <span style="font-size: 13px; font-weight: bold; color: #000;">कुल देय राशि</span>
-                        </td>
-                        <td class="text-right" id="lblTotal">₹0.00</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-        
-        <div class="action-buttons">
-            <button class="download-btn" onclick="downloadBillImage()">Download Bill Image</button>
-            <button class="share-btn" onclick="shareBillImage()">Share Bill</button>
-        </div>
+    <div class="action-buttons">
+      <button class="download-btn" onclick="downloadBillImage()">Download Bill Image</button>
+      <button class="share-btn" onclick="shareBillImage()">Share Bill</button>
     </div>
+  </div>
 
-    <script>
-        // Formats visual date nicely inside the receipt
-        document.getElementById('billDate').innerText = "Date: " + new Date().toLocaleDateString('en-IN', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric'
+  <script>
+    // Formats visual date nicely inside the receipt
+    document.getElementById('billDate').innerText = "Date: " + new Date().toLocaleDateString('en-IN', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+
+    function generateBill() {
+      const name = document.getElementById('tenantName').value || 'Tenant';
+      const roomRent = parseFloat(document.getElementById('roomRent').value) || 0;
+      const ratePerUnit = parseFloat(document.getElementById('ratePerUnit').value) || 0;
+      const prevReading = parseFloat(document.getElementById('prevReading').value) || 0;
+      const currReading = parseFloat(document.getElementById('currReading').value) || 0;
+      const adjustment = parseFloat(document.getElementById('adjustment').value) || 0;
+      const prevDue = parseFloat(document.getElementById('prevDue').value) || 0;
+
+      const totalUnits = Math.max(0, currReading - prevReading);
+      const electricityCharges = totalUnits * ratePerUnit;
+      const totalPayable = roomRent + electricityCharges - adjustment + prevDue;
+
+      document.getElementById('lblTenantName').innerText = name;
+      document.getElementById('lblRoomRent').innerText = "₹" + roomRent;
+
+      document.getElementById('lblPrevReading').innerText = prevReading;
+      document.getElementById('lblCurrReading').innerText = currReading;
+      document.getElementById('lblTotalUnits').innerText = totalUnits + " Units";
+      document.getElementById('lblUnitRate').innerText = "₹" + ratePerUnit;
+      document.getElementById('lblElectricCharges').innerText = "₹" + electricityCharges;
+
+      document.getElementById('lblPrevDue').innerText = "+ ₹" + prevDue;
+      document.getElementById('lblAdjustment').innerText = "- ₹" + adjustment;
+
+      document.getElementById('lblTotal').innerText = "₹" + totalPayable;
+
+      // SAVE/UPDATE DATA STORE
+      if (document.getElementById('tenantName').value.trim() !== "") {
+        saveTenantData(name, roomRent, ratePerUnit, currReading, adjustment, prevDue);
+      }
+    }
+
+    function downloadBillImage() {
+      const billElement = document.getElementById('billReceipt');
+      const tenantName = document.getElementById('tenantName').value || 'Tenant';
+
+      const today = new Date();
+      const year = today.getFullYear();
+      const month = String(today.getMonth() + 1).padStart(2, '0');
+      const day = String(today.getDate()).padStart(2, '0');
+      const formattedDate = `${day}-${month}-${year}`;
+
+      const safeName = tenantName.trim().replace(/\s+/g, '_');
+
+      html2canvas(billElement, {
+        scale: 3,
+        useCORS: true,
+        backgroundColor: "#ffffff"
+      }).then(canvas => {
+        const link = document.createElement('a');
+        link.download = `${safeName}_${formattedDate}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      });
+    }
+
+    async function shareBillImage() {
+      const billElement = document.getElementById('billReceipt');
+      const tenantName = document.getElementById('tenantName').value || 'Tenant';
+      const totalPayable = document.getElementById('lblTotal').innerText;
+
+      const today = new Date();
+      const year = today.getFullYear();
+      const month = String(today.getMonth() + 1).padStart(2, '0');
+      const day = String(today.getDate()).padStart(2, '0');
+      const formattedDate = `${day}-${month}-${year}`;
+
+      const safeName = tenantName.trim().replace(/\s+/g, '_');
+      const fileName = `${safeName}_${formattedDate}.png`;
+
+      try {
+        // Render Canvas
+        const canvas = await html2canvas(billElement, {
+          scale: 3,
+          useCORS: true,
+          backgroundColor: "#ffffff"
         });
 
-        function generateBill() {
-            const name = document.getElementById('tenantName').value || 'Tenant';
-            const roomRent = parseFloat(document.getElementById('roomRent').value) || 0;
-            const ratePerUnit = parseFloat(document.getElementById('ratePerUnit').value) || 0;
-            const prevReading = parseFloat(document.getElementById('prevReading').value) || 0;
-            const currReading = parseFloat(document.getElementById('currReading').value) || 0;
-            const adjustment = parseFloat(document.getElementById('adjustment').value) || 0;
-            const prevDue = parseFloat(document.getElementById('prevDue').value) || 0;
+        // 1. Trigger Auto-Download
+        const downloadLink = document.createElement('a');
+        downloadLink.download = fileName;
+        downloadLink.href = canvas.toDataURL('image/png');
+        downloadLink.click();
 
-            const totalUnits = Math.max(0, currReading - prevReading);
-            const electricityCharges = totalUnits * ratePerUnit;
-            const totalPayable = roomRent + electricityCharges - adjustment + prevDue;
+        // 2. Trigger Native Share Sheet
+        canvas.toBlob(async (blob) => {
+          if (!blob) return;
 
-            document.getElementById('lblTenantName').innerText = name;
-            document.getElementById('lblRoomRent').innerText = "₹" + roomRent.toFixed(2);
-            
-            document.getElementById('lblPrevReading').innerText = prevReading;
-            document.getElementById('lblCurrReading').innerText = currReading;
-            document.getElementById('lblTotalUnits').innerText = totalUnits + " Units";
-            document.getElementById('lblUnitRate').innerText = "₹" + ratePerUnit.toFixed(2);
-            document.getElementById('lblElectricCharges').innerText = "₹" + electricityCharges.toFixed(2);
-            
-            document.getElementById('lblPrevDue').innerText = "+ ₹" + prevDue.toFixed(2);
-            document.getElementById('lblAdjustment').innerText = "- ₹" + adjustment.toFixed(2);
-            
-            document.getElementById('lblTotal').innerText = "₹" + totalPayable.toFixed(2);
-
-            // SAVE/UPDATE DATA STORE
-            if(document.getElementById('tenantName').value.trim() !== "") {
-                saveTenantData(name, roomRent, ratePerUnit, currReading, adjustment, prevDue);
-            }
-        }
-
-        function downloadBillImage() {
-            const billElement = document.getElementById('billReceipt');
-            const tenantName = document.getElementById('tenantName').value || 'Tenant';
-            
-            const today = new Date();
-            const year = today.getFullYear();
-            const month = String(today.getMonth() + 1).padStart(2, '0');
-            const day = String(today.getDate()).padStart(2, '0');
-            const formattedDate = `${day}-${month}-${year}`;
-            
-            const safeName = tenantName.trim().replace(/\s+/g, '_');
-
-            html2canvas(billElement, {
-                scale: 3, 
-                useCORS: true,
-                backgroundColor: "#ffffff"
-            }).then(canvas => {
-                const link = document.createElement('a');
-                link.download = `${safeName}_${formattedDate}.png`;
-                link.href = canvas.toDataURL('image/png');
-                link.click();
-            });
-        }
-
-        async function shareBillImage() {
-            const billElement = document.getElementById('billReceipt');
-            const tenantName = document.getElementById('tenantName').value || 'Tenant';
-            const totalPayable = document.getElementById('lblTotal').innerText;
-            
-            const today = new Date();
-            const year = today.getFullYear();
-            const month = String(today.getMonth() + 1).padStart(2, '0');
-            const day = String(today.getDate()).padStart(2, '0');
-            const formattedDate = `${day}-${month}-${year}`;
-            
-            const safeName = tenantName.trim().replace(/\s+/g, '_');
-            const fileName = `${safeName}_${formattedDate}.png`;
-
-            try {
-                // Render Canvas
-                const canvas = await html2canvas(billElement, {
-                    scale: 3,
-                    useCORS: true,
-                    backgroundColor: "#ffffff"
-                });
-
-                // 1. Trigger Auto-Download
-                const downloadLink = document.createElement('a');
-                downloadLink.download = fileName;
-                downloadLink.href = canvas.toDataURL('image/png');
-                downloadLink.click();
-
-                // 2. Trigger Native Share Sheet
-                canvas.toBlob(async (blob) => {
-                    if (!blob) return;
-
-                    const file = new File([blob], fileName, { type: 'image/png' });
+          const file = new File([blob], fileName, { type: 'image/png' });
           const shareText = `Hi ${tenantName},
-Your electricity and rent bill has been generated on ${formattedDate}, with a total amount due of ${totalPayable}.
+Your electricity and rent bill has been generated on ${formattedDate}, with a total amount due of ₹${totalPayable}.
 The detailed bill receipt is attached above. Kindly make the payment on time.
 Thank you!`;
 
-                    // Verify Web Share API File support
-                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                        await navigator.share({
-                            title: `Bill Receipt - ${tenantName}`,
-                            text: shareText,
-                            files: [file]
-                        });
-                    } else {
-                        alert('Native image sharing is not supported on this browser. The bill image has been downloaded to your storage.');
-                    }
-                }, 'image/png');
-
-            } catch (error) {
-                console.error('Sharing failed:', error);
-            }
-        }
-
-        // --- STORAGE & MANAGEMENT FUNCTIONS ---
-        
-        function getStorageMap() {
-            return JSON.parse(localStorage.getItem('tenantBillSystem') || '{}');
-        }
-
-        function saveTenantData(name, rent, rate, currentAsNextPrevious, adjustment, prevDue) {
-            const store = getStorageMap();
-            store[name.trim()] = {
-                roomRent: rent,
-                ratePerUnit: rate,
-                prevReading: currentAsNextPrevious,
-                adjustment: adjustment,
-                prevDue: prevDue
-            };
-            localStorage.setItem('tenantBillSystem', JSON.stringify(store));
-            renderTenantDirectory();
-        }
-
-        function renderTenantDirectory() {
-            const store = getStorageMap();
-            const listContainer = document.getElementById('tenantList');
-            listContainer.innerHTML = '';
-            
-            const keys = Object.keys(store);
-            if(keys.length === 0) {
-                listContainer.innerHTML = '<div style="padding: 10px; font-size:13px; color:#64748b; text-align:center;">No saved tenants found. Details save automatically when updating billing receipt.</div>';
-                return;
-            }
-
-            keys.forEach(name => {
-                const div = document.createElement('div');
-                div.className = 'tenant-item';
-                
-                const nameSpan = document.createElement('span');
-                nameSpan.className = 'tenant-name-click';
-                nameSpan.innerText = name;
-                nameSpan.onclick = function() { loadTenantData(name); };
-
-                const delBtn = document.createElement('button');
-                delBtn.className = 'delete-btn';
-                delBtn.innerText = 'Delete';
-                delBtn.onclick = function(e) {
-                    e.stopPropagation();
-                    deleteTenant(name);
-                };
-
-                div.appendChild(nameSpan);
-                div.appendChild(delBtn);
-                listContainer.appendChild(div);
+          // Verify Web Share API File support
+          if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            await navigator.share({
+              title: `Bill Receipt - ${tenantName}`,
+              text: shareText,
+              files: [file]
             });
-        }
+          } else {
+            alert('Native image sharing is not supported on this browser. The bill image has been downloaded to your storage.');
+          }
+        }, 'image/png');
 
-        function loadTenantData(name) {
-            const store = getStorageMap();
-            const tenant = store[name];
-            if(tenant) {
-                document.getElementById('tenantName').value = name;
-                document.getElementById('roomRent').value = tenant.roomRent;
-                document.getElementById('ratePerUnit').value = tenant.ratePerUnit;
-                document.getElementById('prevReading').value = tenant.prevReading;
-                
-                document.getElementById('currReading').value = '';
-                document.getElementById('adjustment').value = tenant.adjustment || 0;
-                document.getElementById('prevDue').value = tenant.prevDue || 0;
-                
-                generateBill();
-            }
-        }
+      } catch (error) {
+        console.error('Sharing failed:', error);
+      }
+    }
 
-        function deleteTenant(name) {
-            if(confirm(`Are you sure you want to remove ${name} from records?`)) {
-                const store = getStorageMap();
-                delete store[name];
-                localStorage.setItem('tenantBillSystem', JSON.stringify(store));
-                renderTenantDirectory();
-            }
-        }
+    // --- STORAGE & MANAGEMENT FUNCTIONS ---
 
-        // Initialization
-        renderTenantDirectory();
+    function getStorageMap() {
+      return JSON.parse(localStorage.getItem('tenantBillSystem') || '{}');
+    }
+
+    function saveTenantData(name, rent, rate, currentAsNextPrevious, adjustment, prevDue) {
+      const store = getStorageMap();
+      store[name.trim()] = {
+        roomRent: rent,
+        ratePerUnit: rate,
+        prevReading: currentAsNextPrevious,
+        adjustment: adjustment,
+        prevDue: prevDue
+      };
+      localStorage.setItem('tenantBillSystem', JSON.stringify(store));
+      renderTenantDirectory();
+    }
+
+    function renderTenantDirectory() {
+      const store = getStorageMap();
+      const listContainer = document.getElementById('tenantList');
+      listContainer.innerHTML = '';
+
+      const keys = Object.keys(store);
+      if (keys.length === 0) {
+        listContainer.innerHTML = '<div style="padding: 10px; font-size:13px; color:#64748b; text-align:center;">No saved tenants found. Details save automatically when updating billing receipt.</div>';
+        return;
+      }
+
+      keys.forEach(name => {
+        const div = document.createElement('div');
+        div.className = 'tenant-item';
+
+        const nameSpan = document.createElement('span');
+        nameSpan.className = 'tenant-name-click';
+        nameSpan.innerText = name;
+        nameSpan.onclick = function () { loadTenantData(name); };
+
+        const delBtn = document.createElement('button');
+        delBtn.className = 'delete-btn';
+        delBtn.innerText = 'Delete';
+        delBtn.onclick = function (e) {
+          e.stopPropagation();
+          deleteTenant(name);
+        };
+
+        div.appendChild(nameSpan);
+        div.appendChild(delBtn);
+        listContainer.appendChild(div);
+      });
+    }
+
+    function loadTenantData(name) {
+      const store = getStorageMap();
+      const tenant = store[name];
+      if (tenant) {
+        document.getElementById('tenantName').value = name;
+        document.getElementById('roomRent').value = tenant.roomRent;
+        document.getElementById('ratePerUnit').value = tenant.ratePerUnit;
+        document.getElementById('prevReading').value = tenant.prevReading;
+
+        document.getElementById('currReading').value = '';
+        document.getElementById('adjustment').value = tenant.adjustment || 0;
+        document.getElementById('prevDue').value = tenant.prevDue || 0;
+
         generateBill();
-    </script>
+      }
+    }
+
+    function deleteTenant(name) {
+      if (confirm(`Are you sure you want to remove ${name} from records?`)) {
+        const store = getStorageMap();
+        delete store[name];
+        localStorage.setItem('tenantBillSystem', JSON.stringify(store));
+        renderTenantDirectory();
+      }
+    }
+
+    // Initialization
+    renderTenantDirectory();
+    generateBill();
+  </script>
 </body>
+
 </html>
