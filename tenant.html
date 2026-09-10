@@ -533,7 +533,7 @@
 
           const file = new File([blob], fileName, { type: 'image/png' });
           const shareText = `Hi ${tenantName},
-Your electricity and rent bill has been generated on ${formattedDate}, with a total amount due of ₹${totalPayable}.
+Your electricity and rent bill has been generated on ${formattedDate}, with a total amount due of ${totalPayable}.
 The detailed bill receipt is attached above. Kindly make the payment on time.
 Thank you!`;
 
@@ -560,14 +560,12 @@ Thank you!`;
       return JSON.parse(localStorage.getItem('tenantBillSystem') || '{}');
     }
 
-    function saveTenantData(name, rent, rate, currentAsNextPrevious, adjustment, prevDue) {
+    function saveTenantData(name, rent, rate, currentAsNextPrevious) {
       const store = getStorageMap();
       store[name.trim()] = {
         roomRent: rent,
         ratePerUnit: rate,
-        prevReading: currentAsNextPrevious,
-        adjustment: adjustment,
-        prevDue: prevDue
+        prevReading: currentAsNextPrevious
       };
       localStorage.setItem('tenantBillSystem', JSON.stringify(store));
       renderTenantDirectory();
@@ -617,8 +615,6 @@ Thank you!`;
         document.getElementById('prevReading').value = tenant.prevReading;
 
         document.getElementById('currReading').value = '';
-        document.getElementById('adjustment').value = tenant.adjustment || 0;
-        document.getElementById('prevDue').value = tenant.prevDue || 0;
 
         generateBill();
       }
