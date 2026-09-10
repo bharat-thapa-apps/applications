@@ -525,13 +525,10 @@
                     if (!blob) return;
 
                     const file = new File([blob], fileName, { type: 'image/png' });
-                    const shareText = `Electricity & Rent Bill Summary\n` +
-                                      `---------------------------\n` +
-                                      `Tenant Name: ${tenantName}\n` +
-                                      `Date: ${formattedDate}\n` +
-                                      `Total Amount Due: ${totalPayable}\n` +
-                                      `---------------------------\n` +
-                                      `Please find the detailed bill receipt attached below.`;
+          const shareText = `Hi ${tenantName},
+Your electricity and rent bill has been generated on ${formattedDate}, with a total amount due of ₹${totalPayable}.
+The detailed bill receipt is attached above. Kindly make the payment on time.
+Thank you!`;
 
                     // Verify Web Share API File support
                     if (navigator.canShare && navigator.canShare({ files: [file] })) {
