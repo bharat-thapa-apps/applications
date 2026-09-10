@@ -263,13 +263,30 @@
             border-bottom: 2px double #000000;
         }
 
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            width: 100%;
+        }
+
         .download-btn {
             background-color: #16a34a;
             border-radius: 4px;
+            margin-top: 0;
         }
 
         .download-btn:hover {
             background-color: #15803d;
+        }
+
+        .share-btn {
+            background-color: #0284c7;
+            border-radius: 4px;
+            margin-top: 0;
+        }
+
+        .share-btn:hover {
+            background-color: #0369a1;
         }
     </style>
 </head>
@@ -310,8 +327,7 @@
         <hr style="margin: 25px 0 15px 0; border: 0; border-top: 1px solid var(--border);">
         
         <h2>Tenant Directory</h2>
-        <div class="tenant-list" id="tenantList">
-            </div>
+        <div class="tenant-list" id="tenantList"></div>
     </div>
 
     <div id="bill-preview-container">
@@ -405,7 +421,10 @@
             </table>
         </div>
         
-        <button class="download-btn" onclick="downloadBillImage()">Download Bill Image</button>
+        <div class="action-buttons">
+            <button class="download-btn" onclick="downloadBillImage()">Download Bill Image</button>
+            <button class="share-btn" onclick="shareBillImage()">Share Bill</button>
+        </div>
     </div>
 
     <script>
@@ -443,7 +462,7 @@
             
             document.getElementById('lblTotal').innerText = "₹" + totalPayable.toFixed(2);
 
-            // SAVE/UPDATE DATA STORE: Save current profile and update next sequence's previous reading
+            // SAVE/UPDATE DATA STORE
             if(document.getElementById('tenantName').value.trim() !== "") {
                 saveTenantData(name, roomRent, ratePerUnit, currReading, adjustment, prevDue);
             }
@@ -453,14 +472,12 @@
             const billElement = document.getElementById('billReceipt');
             const tenantName = document.getElementById('tenantName').value || 'Tenant';
             
-            // Generate clean timestamp for file title (YYYY-MM-DD)
             const today = new Date();
             const year = today.getFullYear();
             const month = String(today.getMonth() + 1).padStart(2, '0');
             const day = String(today.getDate()).padStart(2, '0');
             const formattedDate = `${day}-${month}-${year}`;
             
-            // Clean up name by converting spaces to underscores
             const safeName = tenantName.trim().replace(/\s+/g, '_');
 
             html2canvas(billElement, {
@@ -469,27 +486,82 @@
                 backgroundColor: "#ffffff"
             }).then(canvas => {
                 const link = document.createElement('a');
-                // Set the exact naming convention: Name_Date.png
                 link.download = `${safeName}_${formattedDate}.png`;
                 link.href = canvas.toDataURL('image/png');
                 link.click();
             });
         }
 
-        // --- NEW STORAGE & MANAGEMENT FUNCTIONS ---
+        async function shareBillImage() {
+            const billElement = document.getElementById('billReceipt');
+            const tenantName = document.getElementById('tenantName').value || 'Tenant';
+            const totalPayable = document.getElementById('lblTotal').innerText;
+            
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            const formattedDate = `${day}-${month}-${year}`;
+            
+            const safeName = tenantName.trim().replace(/\s+/g, '_');
+            const fileName = `${safeName}_${formattedDate}.png`;
+
+            try {
+                // Render Canvas
+                const canvas = await html2canvas(billElement, {
+                    scale: 3,
+                    useCORS: true,
+                    backgroundColor: "#ffffff"
+                });
+
+                // 1. Trigger Auto-Download
+                const downloadLink = document.createElement('a');
+                downloadLink.download = fileName;
+                downloadLink.href = canvas.toDataURL('image/png');
+                downloadLink.click();
+
+                // 2. Trigger Native Share Sheet
+                canvas.toBlob(async (blob) => {
+                    if (!blob) return;
+
+                    const file = new File([blob], fileName, { type: 'image/png' });
+                    const shareText = `Electricity & Rent Bill Summary\n` +
+                                      `---------------------------\n` +
+                                      `Tenant Name: ${tenantName}\n` +
+                                      `Date: ${formattedDate}\n` +
+                                      `Total Amount Due: ${totalPayable}\n` +
+                                      `---------------------------\n` +
+                                      `Please find the detailed bill receipt attached below.`;
+
+                    // Verify Web Share API File support
+                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                        await navigator.share({
+                            title: `Bill Receipt - ${tenantName}`,
+                            text: shareText,
+                            files: [file]
+                        });
+                    } else {
+                        alert('Native image sharing is not supported on this browser. The bill image has been downloaded to your storage.');
+                    }
+                }, 'image/png');
+
+            } catch (error) {
+                console.error('Sharing failed:', error);
+            }
+        }
+
+        // --- STORAGE & MANAGEMENT FUNCTIONS ---
         
-        // Fetch or create storage dictionary
         function getStorageMap() {
             return JSON.parse(localStorage.getItem('tenantBillSystem') || '{}');
         }
 
-        // Save layout configuration to localStorage mapping
         function saveTenantData(name, rent, rate, currentAsNextPrevious, adjustment, prevDue) {
             const store = getStorageMap();
             store[name.trim()] = {
                 roomRent: rent,
                 ratePerUnit: rate,
-                prevReading: currentAsNextPrevious, // Shifted calculation rule applied here
+                prevReading: currentAsNextPrevious,
                 adjustment: adjustment,
                 prevDue: prevDue
             };
@@ -497,7 +569,6 @@
             renderTenantDirectory();
         }
 
-        // Draw interactive list rows from localStorage dynamic entries
         function renderTenantDirectory() {
             const store = getStorageMap();
             const listContainer = document.getElementById('tenantList');
@@ -522,7 +593,7 @@
                 delBtn.className = 'delete-btn';
                 delBtn.innerText = 'Delete';
                 delBtn.onclick = function(e) {
-                    e.stopPropagation(); // Avoid loading details when attempting layout deletion
+                    e.stopPropagation();
                     deleteTenant(name);
                 };
 
@@ -532,7 +603,6 @@
             });
         }
 
-        // Populates elements cleanly when row click event registers
         function loadTenantData(name) {
             const store = getStorageMap();
             const tenant = store[name];
@@ -542,17 +612,14 @@
                 document.getElementById('ratePerUnit').value = tenant.ratePerUnit;
                 document.getElementById('prevReading').value = tenant.prevReading;
                 
-                // Clear out volatile data fields to avoid bad carryover states
                 document.getElementById('currReading').value = '';
                 document.getElementById('adjustment').value = tenant.adjustment || 0;
                 document.getElementById('prevDue').value = tenant.prevDue || 0;
                 
-                // Refresh preview context matching active updates
                 generateBill();
             }
         }
 
-        // Drops entry element safely from map list matching chosen value key
         function deleteTenant(name) {
             if(confirm(`Are you sure you want to remove ${name} from records?`)) {
                 const store = getStorageMap();
@@ -562,7 +629,7 @@
             }
         }
 
-        // Initial setup initialization logic hooks
+        // Initialization
         renderTenantDirectory();
         generateBill();
     </script>
