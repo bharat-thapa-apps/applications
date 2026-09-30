@@ -762,7 +762,7 @@
         canvas.toBlob(async (blob) => {
           if (!blob) return;
           const file = new File([blob], fileName, { type: 'image/png' });
-          const shareText = `Dear ${tenantName},\nYour rent and electricity bill has been generated. Total Amount Due: ${totalPayable}.\nPlease find the attached receipt.`;
+          const shareText = `Hi! ${tenantName},\nYour rent and electricity bill has been generated. Total Amount Due: ${totalPayable}.\nPlease find the attached receipt and make the payment on time.`;
 
           if (navigator.canShare && navigator.canShare({ files: [file] })) {
             await navigator.share({
